@@ -1,0 +1,4648 @@
+<!DOCTYPE html>
+<!-- saved from url=(0025)https://api.owencloud.ru/ -->
+<html lang="ru-RU"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="apple-touch-icon" sizes="180x180" href="https://api.owencloud.ru/apple-touch-icon.png">
+		<link rel="icon" type="image/png" sizes="32x32" href="https://api.owencloud.ru/favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="https://api.owencloud.ru/favicon-16x16.png">
+		<link rel="mask-icon" href="https://api.owencloud.ru/safari-pinned-tab.svg" color="#00aba9">
+		<style type="text/css">
+			pre {
+				-moz-tab-size:    4; 
+				-o-tab-size:      4; 
+				tab-size:         4; 
+			}
+		</style>
+		<meta name="csrf-param" content="_csrf">
+    <meta name="csrf-token" content="Z_r2k07lZzdUdQ_g4awvqRRFXnI8diXO8xOhoJxa7m4Y4LK2fYh8e8MykRjujPbXpkoB2AtdMSwWfuMcOKRrIw==">
+		<title>OwenCloud API</title>
+		<link href="./OwenCloud API_files/bootstrap.css" rel="stylesheet">	
+    </head>
+    <body>
+				<div class="container">
+			<div class="panel panel-default" style="margin-top: 10px;">
+
+	<div class="panel-heading">
+		<h1>API OwenCloud (Beta)</h1>
+	</div>
+
+	<div class="panel-body">
+		<p>API предназначено для доступа к имеющимся в 
+			системе данным. В качестве основного формата вывода применяется JSON, 
+			однако клиент также может запросить данные в формате XML указав 
+			заголовок Accept: application/xml.</p>
+		<p>Для аутентификации пользователей в API применяются access tokens, 
+			передаваемые в заголовке согласно спецификации OAuth 2. На начальном 
+			этапе эксплуатации API для получения токена используется отдельный метод API.</p>
+
+		<h2>Общие принципы работы</h2>
+		<p>Требуемое действие определяется через HTTP Verb POST,
+			семантика действия описывается в документации. Не описанные действия 
+			считаются невалидными.</p>
+		<p>Результат выполнения каждого метода возвращается в HTTP Status Code,
+			в случае ошибки также выдается текстовое описание случившейся ошибки.</p>
+		<p>Дополнительные входные параметры метода передаются в теле запроса 
+			(в таком случае оно должно быть валидным JSON-объектом). Структура
+			объекта описывается отдельно для каждого метода.</p>
+
+		<h2>Версионирование</h2>
+		<p>Версия API определяется частью URL после домена, т.&nbsp;е. URL имеет вид
+			<a rel="nofollow" class="external free" href="https://api.owencloud.ru/v1/object/action">https://api.owencloud.ru/v1/object/action</a>.<br>
+			Предполагается что изменение версии API будет приводить к потере обратной совместимости
+			(а соответственно клиенты API должны использвать ту версию, под которую 
+			были написаны).</p>
+
+		<h2>Интернационализация</h2>
+		<p>
+			В любом методе API в JSON-объекте запроса можно указать поле <b>language</b>, 
+			которое будет обозначать требуемый при получении данных язык. В поле должен
+			находиться идентификатор языка в виде <b>en-US</b>. Если запрошенный язык не 
+			поддерживается или в запросе язык не указан, будет использован язык по
+			умолчанию (ru-RU).
+		</p>
+		<p>
+			Также, в локализуемых полях при отсутствии перевода на текущий язык приложения, 
+			будет выдаваться значение для языка по умолчанию.
+		</p>
+
+		<h2>Методы API</h2>
+		<p>На данный момент приведено только общее описание методов по существу 
+			«что должны делать», конкретное описание выводимых данных будет добавлено 
+			в ходе разработки.</p>
+
+		<h2>Особые состояния методов</h2>
+		<div class="deprecated">
+			<h3><span class="text-warning">УСТАРЕВШИЙ МЕТОД</span></h3>
+			<p>Данный метод продолжает поддерживаться, но не будет развиваться. Рекомендуется переключиться на использование
+			более современного метода.</p>
+		</div>
+
+		<div class="forbidden">
+			<h3><span class="text-danger">ЗАПРЕЩЁННЫЙ МЕТОД</span></h3>
+			<p>Данный метод больше не поддерживается. В обязательном порядке используйте замещающий метод.</p>
+		</div>
+
+        <h2 id="contents">Содержание</h2>
+        <figure style="padding: 9px 14px; background-color: #f7f7f9; border: 1px solid #e1e1e8; border-radius: 4px; font-size: 17px;">
+            <ul>
+                <li><a href="https://api.owencloud.ru/#auth">Аутентификация и регистрация</a></li>
+                <li><a href="https://api.owencloud.ru/#device">Информация о приборах</a></li>
+                <li><a href="https://api.owencloud.ru/#device-management">Управление приборами</a></li>
+                <li><a href="https://api.owencloud.ru/#parameter-management">Управление modbus параметрами</a></li>
+				<li><a href="https://api.owencloud.ru/#event-management">Управление событиями</a></li>
+				<li><a href="https://api.owencloud.ru/#parameter">Данные параметров</a></li>
+                <li><a href="https://api.owencloud.ru/#parameter-write">Запись данных в параметры приборов</a></li>
+				<li><a href="https://api.owencloud.ru/#device-write-log">Логи запросов на запись</a></li>
+                <li><a href="https://api.owencloud.ru/#device-event">События приборов</a></li>
+                <li><a href="https://api.owencloud.ru/#company-event">События компаний</a></li>
+                <li><a href="https://api.owencloud.ru/#write-template">Шаблоны на запись</a></li>
+                <li><a href="https://api.owencloud.ru/#write-template-management">Управление шаблонами на запись</a></li>
+                <li><a href="https://api.owencloud.ru/#user-object">Информация о приборах и шаблонах</a></li>
+                <li><a href="https://api.owencloud.ru/#user-management">Управление пользователем</a></li>
+                <li><a href="https://api.owencloud.ru/#miscellaneous">Разное</a></li>
+            </ul>
+        </figure>
+
+        <h2 id="auth">Аутентификация и регистрация</h2>
+		<h3>Аутентификация — POST auth/open</h3>
+<p>В параметрах передаётся логин и пароль пользователя, от имени которого
+	требуется получить доступ к системе. В ответе выдаётся токен (сам токен
+	хранится в MariaDB), который в дальнейшем передается в заголовке каждого
+	следующего запроса к системе. Также в ответе присутствует имя и фамилия
+	пользователя, совершившего вход. Для доступа может использоваться токен,
+	взятый из личного кабинета пользователя. Токен, полученный через
+	логин-пароль&nbsp;через 20 минут неактивности (отсутствия запросов)
+	инвалидируется и удаляется из БД.&nbsp;</p>
+<p>Параметры запроса:</p>
+<ul>
+	<li>login - имя пользователя</li>
+	<li>password - пароль пользователя</li>
+</ul>
+<h4>Запрос:</h4>
+<pre>POST /v1/auth/open HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Content-Length: 68
+Content-Type: application/x-www-form-urlencoded</pre>
+<pre>{
+	"login":"admin@owen.cloud",
+	"password":"password123"
+}</pre>
+<h4>Ответ:</h4>
+<pre>{
+	"token":"C_etshQbOB1nAzMQaxgNqjHDizvzvRyI",
+	"name":"Admin",
+	"surname":"Adminov",
+	"company_name":"OWEN.ADMIN",
+	"domain_name":"web.owencloud.ru",
+	"canManageCommands":true,
+	"smsConfirmation":false,
+	"error_status": 0
+}</pre>
+<br>
+<h4>Описание возвращаемых полей:</h4>
+<ul>
+	<li>token - токен для авторизации</li>
+	<li>name - имя юзера</li>
+	<li>surname - фамилия юзера</li>
+	<li>company_name - название компании юзера</li>
+	<li>domain_name - доменное имя, к которому относится пользователь</li>
+	<li>canManageCommands - имеет ли пользователь роль «Управляющий командами» для своей компании</li>
+	<li>smsConfirmation - включен ли флаг необходимости SMS–подтверждения компании пользователя</li>
+	<li>error_status - статус запроса. 0 - запрос выполнен без ошибок, 1 - ошибка авторизации, 2 - почта не подтверждена</li>
+</ul>
+		<h3>Инициализация регистрации — POST auth/init-sign-up</h3>
+		<p>Начинает процесс регистрации компании/пользователя. Капча, которая получена от auth/init-sign-up,
+            действительна в течение 5 минут! По истечении этого времени следует инициализировать регистрацию заново.</p>
+		<p>Параметры запроса:</p>
+		<ul>
+            <li>Пустой массив</li>
+        </ul>
+		<h4>Запрос:</h4>
+		<pre>POST /v1/auth/init-sign-up HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Content-Length: 68
+Content-Type: application/x-www-form-urlencoded</pre>
+		<pre>[]</pre>
+		<h4>Ответ:</h4>
+		<pre>{
+    "requestId":"14",
+    "captchaBase64":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAAAtCAIAAAC2z3vlAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAFw0lEQVRoge2Zb2jNXxzHX+bSsK5r1tyuua6RGK1ZYpa0tKTlgSRNyYPlAfeBJGlJiFIolgcaIS2WkEda0pLIzFZizUjDjcX8aZi5Zsb79+Cb8zu/u/nezb9fv/u77+6Dz3nfz/l8zvuc8z3n8713iCT+T0j5twfwp5EUnOhICk50JAUnOpKCEx1/SPAXvjTSuJ3td7n7ZzJ+D57fGv0pT7exrZXWW9yKEgWWs/y3ZoyL3ys4QOACF17z2jC99A4qwk1u+vF78XrwRImOY9xPDun3bumhDF3MYpvpomtQEcopDxFKJ92LdwUrfn5IgxD8nvdPefqJT4NKUEyx3XzLW2Pf495hDu9hj0v3KUwxdjbZg0rdLwYk+BSnZjHLhy9I0IdvJSuf87xfz+tcP8CB7Ww/xrFXvAIWsMB2aKf9DndmMGMUo3LIWcta99R+/P3aPw7Fw1qtRcR8Qgq1qtV2iyhSoALbJ1Wph3RIUlBBQ+7QDkk5yjHMeZ3vm7Rb3Y6xX/uN517tlXRFVxrUEHfY30OcQ+sYxyqp7MtHiKxi1Q1uOM0XvCiiKELE9ummO0w4jbQ5zHnCE4d0jFxyW2hxGB8+u9djHocJ11KbSupWtqaTbr5KIw2op76cch++PPKmMrWQwijRKqqKKc4nfxrTAgRGM/pHVrhXvSGFzASXqCRmtc/ojOO5Sqv67gLnk670Xdplmgu1UFKJSgzTpCaTsV3t9nZAzNd8Y5/QCUm7tdt22K/9VaqKYVxEuQluUIOJ4pGnQx2SilRkyMVaLOmZnqUoxZAHdbBFLT75DBNW2NgBBXrUk650E7ZLXSZjmcq+N3GIalVL2qIthklRSpvaDumQ7RbzrMXA7dC6zW1jhwiNYQywmtWGvMrVL3ypoeYrXx0mg4ww4elML6XUuN3nvrGf8ewoRzvocJqllI5ilGN/4EM11cazgIJ66kOEDOPB40QwTB554xlvogFBgpOZ7CLKTbAdaCQjHaOIIkNGibbS2kSTPYKhDHWGa8j73Lcfxc1sdgwvXmMDddR1022aa1gzl7lLWGKNNQWwTwrnzmujzTAxl0JfuAk2IoFOOh1jEpM8Vn3WQYddSJmbI4ssQ77kpX2Fmtqjk84CChppdJrNNNvZpzIVSCXVME6V1kqrYWYzm28HoYM5zHFRhLtgezs94ckb3nzr83cvDx5bfw89jjGc4bZPkKA9JtOMEl3Pese2J44+pzfwla/veW+vZx55/HPNc8l1UYS74Hzy7WRnOAM85KFRBWSSadcDD3jgGI94ZEg//gABO/IRjhi7nvqHPKRPme1sb7syixKN2QUBAp/5bK/5TGa6KMJd8HjG2xO2la1nObuRjXa+iUy0fZpousc94DSnDZlPvv0Mt9BSTLE9Bec5z7dr1sA5MuuoM0wnnfbyOkwttWYBMsgYy1hXvfEqrQpVuNwTYYUltanNI48hgwou1ELbrUpVe7XXZprVXKpSu27rUc9xHbd9/PIv0iKb2aZtJ3XSZgpVmKUsu1JwlxPnHpbUo54pmtKvWq+87Wp33JZq6fcmJVOZUUXtChFRoYqd2hnDNKu5b3e7DilT2SVdclmASlXGFRzn5WEYw2qoiXkCne1XTbV5O62gIoOMvt1TSDnBiRGMiHkrPMc5J6YX7wIWlFEWJTqDGTnkxHSfz3zTjBAppNA+Dm348A3o/THulEhqV/tGbcxRjl/+XOVu0IaIIjE+9arPVrY93z75qlTlfLtaq7OUtURLylV+REdqVNOs5jrV9arXDnJZl4druP3IrNEaO6Ck9Vrf7/JWqGIgWobo1/17+JnPtdQ20dRLbzbZJZSYIv4d79wKegt3uFNJ5UteFlO8jnV3uTuSkWmkefB00TWBCR/5WEaZfSgCm9i0j30Dif8rBf9JXOPaRS620ZZJ5jKWzWPeADv+VwX/MJK/Syc6koITHUnBiY6k4ERHUnCiIyk40fEXBNfcDSRIzukAAAAASUVORK5CYII=",
+}
+        </pre>
+		<br>
+		<h4>Описание возвращаемых полей:</h4>
+        <ul>
+            <li>requestId - ID запроса, с которым пользователь обращается к регистрации</li>
+            <li>captchaBase64 - капча, закодированная в base64, для вывода пользователю декодируем</li>
+        </ul>			<h3>Регистрации — POST auth/sign-up</h3>
+	<p>Регистрации нового пользователя. Пользователь регистрируется как физическое лицо/индивидуальный предприниматель (см. регистрацию на сайте).</p>
+	<p>Капча, которая получена от auth/init-sign-up, действительна в течение 5 минут! По истечении этого времени
+		следует инициализировать регистрацию заново.</p>
+	<p>После успешной регистрации на указанную почту будет отправлено письмо со ссылкой для активации через
+		сайт и код доступа для подтверждения почты через метод auth/confirm-email.</p>
+	<p>
+	<a target="_blank" href="https://dev-web.owencloud.ru/site/agreement">Лицензионное соглашение</a> и
+	<a target="_blank" href="https://dev-web.owencloud.ru/site/privacy-policy">политика конфиденциальности</a> должны быть приняты, иначе пользователь не будет зарегистрирован.</p>
+	<p>Параметры запроса:</p>
+	<p>Валидация капчи</p>
+	<ul>
+		<li>verifyCode* - код капчи</li>
+		<li>requestId* - id запроса, полученный ранее при обращении к auth/init-sign-up</li>
+	</ul>
+	<p>Данные пользователя</p>
+	<ul>
+		<li>email* - адрес электронной почты</li>
+		<li>password* - пароль</li>
+		<li>password_confirm* - подтверждение пароля</li>
+		<li>name* - имя пользователя</li>
+		<li>surname* - фамилия пользователя</li>
+		<li>patronymic - отчество пользователя</li>
+		<li>phone - номер телефона в формате 79991231212</li>
+		<li>skype - skype пользователя</li>
+		<li>individualTaxpayerNumber - ИНН физического лица</li>
+		<li>individualCompanyName - название компании или группы лиц</li>
+		<li>acceptAgreement* - допустимо значение 1. во всех остальных случаях соглашение считается непринятым и регистрация прервётся.</li>
+	</ul>
+	<h4>Запрос:</h4>
+	<pre>POST /v1/auth/sign-up HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Content-Length: 68
+Content-Type: application/x-www-form-urlencoded</pre>
+	<p>Тело запроса</p>
+	<pre>{
+	"name":"Иван",
+	"surname":"Петров",
+	"patronymic":"Васильевич",
+	"email":"i.petrov@company.ru",
+	"phone":"79654321212",
+	"skype":"i_petrov",
+	"password":"********",
+	"password_confirm":"********",
+	"individualTaxpayerNumber":"123456789012",
+	"individualCompanyName": "ИП Петров Иван Васильевич",
+	"verifyCode":"dfewu",
+	"requestId":"535",
+	"acceptAgreement":"1"
+}</pre>
+	<h4>Ответ:</h4>
+	<pre>{
+    "code": "success",
+    "description": "Для продолжения регистрации следуйте инструкциям, отправленным на указанную почту."
+}
+</pre>
+<br>
+<h4>Описание возвращаемых полей:</h4>
+<ul>
+	<li>code - код события.</li>
+	<li>description - описание события.</li>
+	<li>error_status - статус запроса. 0 - запрос выполнен без ошибок, 1 - ошибка авторизации, 2 - почта не подтверждена</li>
+</ul>	    <h3>Повторно отправляет пользователю письмо для подтверждения почты — POST auth/resend-signup-email/?email=my.name@mail.com</h3>
+		<p>В письме будет ссылка для активации через сайт и код доступа для подтверждения почты через метод auth/confirm-email.</p>
+		<p>Параметры запроса:</p>
+		<ul>
+			<li>email - адрес электронной почты пользователя</li>
+		</ul>
+		<h4>Запрос:</h4>
+		<pre>POST /v1/auth/resend-signup-email/?email=my.name@mail.com HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Content-Length: 68
+Content-Type: application/x-www-form-urlencoded</pre>
+	<p>Тело запроса для регистрации физического лица</p>
+	<pre>{}</pre>
+	<h4>Ответ:</h4>
+	<pre>{
+    "code": "success",
+    "description": "Вам повторно отправлено письмо с подтверждением."
+}
+	</pre>
+	<br>
+	<h4>Описание возвращаемых полей:</h4>
+	<ul>
+		<li>code - код события.</li>
+		<li>description - описание события.</li>
+	</ul>		<h3>Подтверждение почты — POST auth/confirm-email</h3>
+<p>Подтверждает почту пользователя, зарегистрированного через auth/sign-up. После подтверждения почты пользователь получает
+доступ к сервису.</p>
+<p>Параметры запроса:</p>
+<ul>
+	<li>email{*} - почтовый адрес пользователя</li>
+	<li>accessCode{*} - код доступа, полученный в письме по запросу auth/sign-up. Действителен в течение 5 минут</li>
+</ul>
+<small>{*} - поля, помеченные звёздочкой обязательны к заполнению</small>
+<h4>Запрос:</h4>
+<pre>POST /v1/auth/sign-up HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Content-Length: 68
+Content-Type: application/x-www-form-urlencoded</pre>
+<p>Тело запроса</p>
+<pre>{
+    "email":"user@email.com",
+    "accessCode":"TBN2NU",
+}</pre>
+<h4>Ответ:</h4>
+<pre>{
+    "code": "success",
+    "description": "Вы успешно подтвердили свой email."
+}</pre>
+<h4>Описание возвращаемых полей:</h4>
+<ul>
+	<li>code - код события.</li>
+	<li>description - описание события.</li>
+</ul>		<h3><i>Группа запросов на восстановление пароля</i></h3>
+		<h3>Инициализация восстановления пароля — POST auth/init-password-reset</h3>
+		<p>Начинает процесс восстановления пароля. Капча, которая получена от auth/init-password-reset,
+            действительна в течение 5 минут! По истечении этого времени следует инициализировать восстановление пароля заново.</p>
+		<p>Параметры запроса:</p>
+		<ul>
+            <li>Пустой массив</li>
+        </ul>
+		<h4>Запрос:</h4>
+		<pre>POST /v1/auth/init-password-reset HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Content-Length: 68
+Content-Type: application/x-www-form-urlencoded</pre>
+		<pre>[]</pre>
+		<h4>Ответ:</h4>
+		<pre>{
+    "requestId":"14",
+    "captchaBase64":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAAAtCAIAAAC2z3vlAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAFw0lEQVRoge2Zb2jNXxzHX+bSsK5r1tyuua6RGK1ZYpa0tKTlgSRNyYPlAfeBJGlJiFIolgcaIS2WkEda0pLIzFZizUjDjcX8aZi5Zsb79+Cb8zu/u/nezb9fv/u77+6Dz3nfz/l8zvuc8z3n8713iCT+T0j5twfwp5EUnOhICk50JAUnOpKCEx1/SPAXvjTSuJ3td7n7ZzJ+D57fGv0pT7exrZXWW9yKEgWWs/y3ZoyL3ys4QOACF17z2jC99A4qwk1u+vF78XrwRImOY9xPDun3bumhDF3MYpvpomtQEcopDxFKJ92LdwUrfn5IgxD8nvdPefqJT4NKUEyx3XzLW2Pf495hDu9hj0v3KUwxdjbZg0rdLwYk+BSnZjHLhy9I0IdvJSuf87xfz+tcP8CB7Ww/xrFXvAIWsMB2aKf9DndmMGMUo3LIWcta99R+/P3aPw7Fw1qtRcR8Qgq1qtV2iyhSoALbJ1Wph3RIUlBBQ+7QDkk5yjHMeZ3vm7Rb3Y6xX/uN517tlXRFVxrUEHfY30OcQ+sYxyqp7MtHiKxi1Q1uOM0XvCiiKELE9ummO0w4jbQ5zHnCE4d0jFxyW2hxGB8+u9djHocJ11KbSupWtqaTbr5KIw2op76cch++PPKmMrWQwijRKqqKKc4nfxrTAgRGM/pHVrhXvSGFzASXqCRmtc/ojOO5Sqv67gLnk670Xdplmgu1UFKJSgzTpCaTsV3t9nZAzNd8Y5/QCUm7tdt22K/9VaqKYVxEuQluUIOJ4pGnQx2SilRkyMVaLOmZnqUoxZAHdbBFLT75DBNW2NgBBXrUk650E7ZLXSZjmcq+N3GIalVL2qIthklRSpvaDumQ7RbzrMXA7dC6zW1jhwiNYQywmtWGvMrVL3ypoeYrXx0mg4ww4elML6XUuN3nvrGf8ewoRzvocJqllI5ilGN/4EM11cazgIJ66kOEDOPB40QwTB554xlvogFBgpOZ7CLKTbAdaCQjHaOIIkNGibbS2kSTPYKhDHWGa8j73Lcfxc1sdgwvXmMDddR1022aa1gzl7lLWGKNNQWwTwrnzmujzTAxl0JfuAk2IoFOOh1jEpM8Vn3WQYddSJmbI4ssQ77kpX2Fmtqjk84CChppdJrNNNvZpzIVSCXVME6V1kqrYWYzm28HoYM5zHFRhLtgezs94ckb3nzr83cvDx5bfw89jjGc4bZPkKA9JtOMEl3Pese2J44+pzfwla/veW+vZx55/HPNc8l1UYS74Hzy7WRnOAM85KFRBWSSadcDD3jgGI94ZEg//gABO/IRjhi7nvqHPKRPme1sb7syixKN2QUBAp/5bK/5TGa6KMJd8HjG2xO2la1nObuRjXa+iUy0fZpousc94DSnDZlPvv0Mt9BSTLE9Bec5z7dr1sA5MuuoM0wnnfbyOkwttWYBMsgYy1hXvfEqrQpVuNwTYYUltanNI48hgwou1ELbrUpVe7XXZprVXKpSu27rUc9xHbd9/PIv0iKb2aZtJ3XSZgpVmKUsu1JwlxPnHpbUo54pmtKvWq+87Wp33JZq6fcmJVOZUUXtChFRoYqd2hnDNKu5b3e7DilT2SVdclmASlXGFRzn5WEYw2qoiXkCne1XTbV5O62gIoOMvt1TSDnBiRGMiHkrPMc5J6YX7wIWlFEWJTqDGTnkxHSfz3zTjBAppNA+Dm348A3o/THulEhqV/tGbcxRjl/+XOVu0IaIIjE+9arPVrY93z75qlTlfLtaq7OUtURLylV+REdqVNOs5jrV9arXDnJZl4druP3IrNEaO6Ck9Vrf7/JWqGIgWobo1/17+JnPtdQ20dRLbzbZJZSYIv4d79wKegt3uFNJ5UteFlO8jnV3uTuSkWmkefB00TWBCR/5WEaZfSgCm9i0j30Dif8rBf9JXOPaRS620ZZJ5jKWzWPeADv+VwX/MJK/Syc6koITHUnBiY6k4ERHUnCiIyk40fEXBNfcDSRIzukAAAAASUVORK5CYII=",
+}
+        </pre>
+		<br>
+		<h4>Описание возвращаемых полей:</h4>
+        <ul>
+            <li>requestId - ID запроса, с которым пользователь обращается к восстановлению пароля</li>
+            <li>captchaBase64 - капча, закодированная в base64, для вывода пользователю декодируем</li>
+        </ul>		<h3>Запрос письма для восстановления пароля — POST auth/reset-password</h3>
+		<p>Отправляет письмо с инструкциями и кодом доступа на адрес электронной почты, привязанной к аккаунту.
+		Код доступа действителен в течение 5 минут.</p>
+		<p>Параметры запроса:</p>
+		<ul>
+            <li>email{*} - почтовый адрес нового пользователя</li>
+            <li>verifyCode{*} - код капчи</li>
+            <li>requestId{*} - id запроса, полученный ранее при обращении к auth/init-password-reset</li>
+        </ul>
+        <small>{*} - поля, помеченные звёздочкой обязательны к заполнению</small>
+		<h4>Запрос:</h4>
+		<pre>POST /v1/auth/reset-password HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Content-Length: 68
+Content-Type: application/x-www-form-urlencoded</pre>
+        <p>Тело запроса</p>
+		<pre>{
+    "email":"user@email.com",
+    "verifyCode":"ookdu",
+    "requestId":"94"
+}
+        </pre>
+		<h4>Ответ:</h4>
+		<pre>{
+    "code": "success",
+    "description": "Проверьте вашу почту для восстановления пароля."
+}
+        </pre>
+		<br>
+		<h4>Описание возвращаемых полей:</h4>
+		<ul>
+            <li>code - код события.</li>
+            <li>description - описание события.</li>
+        </ul>		<h3>Изменение пароля — POST auth/update-password</h3>
+		<p>Обновляет пароль пользователя по коду доступа, полученному в письме.</p>
+		<p>Параметры запроса:</p>
+		<ul>
+            <li>email{*} - почтовый адрес пользователя</li>
+            <li>accessCode{*} - код доступа, полученный в письме по запросу auth/reset-password. Действителен в течение 5 минут</li>
+            <li>newPassword{*} - новый пароль пользователя</li>
+        </ul>
+        <small>{*} - поля, помеченные звёздочкой обязательны к заполнению</small>
+		<h4>Запрос:</h4>
+		<pre>POST /v1/auth/update-password HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Content-Length: 68
+Content-Type: application/x-www-form-urlencoded</pre>
+        <p>Тело запроса</p>
+		<pre>{
+    "email":"user@email.com",
+    "accessCode":"TBN2NU",
+    "newPassword":"userpassword123"
+}
+        </pre>
+		<h4>Ответ:</h4>
+		<pre>{
+    "code": "success",
+    "description": "Вы успешно изменили свой пароль"
+}
+        </pre>
+		<br>
+		<h4>Описание возвращаемых полей:</h4>
+		<ul>
+            <li>code - код события.</li>
+            <li>description - описание события.</li>
+        </ul>
+	<h4>Формат ошибки:</h4>
+<pre>{
+    "name": "Exception",
+    "message": "Необходимо заполнить «Пароль». Код доступа устарел",
+    "code": 0,
+    "type": "yii\\base\\UserException"
+}</pre>        <br><br><a class="btn btn-default" href="https://api.owencloud.ru/#contents">К содержанию</a>
+        <h2 id="device">Информация о приборах</h2>
+		<h3>Вывод списка приборов — POST device/index</h3>
+<p>
+	Список доступных приборов определяется компанией, к которой принадлежит
+	пользователь. Дополнительно по каждому прибору передается мета-информация,
+	такая как пользовательское имя, онлайн/оффлайн, местоположение.
+	(если было введено), избранный/не избранный, Id категорий, в которые он входит.
+</p>
+<p>Также могут быть переданы следующие параметры:
+	</p><ul>
+		<li>filter - число, в таком случае	будут выведены только приборы,
+			пользовательское описание которых подходит под этот фильтр.</li>
+		<li>company_id - :id, запросить приборы не компании пользователя,
+			а какой-то компании, доступной пользователю (если он интегратор).</li>
+		<li>device_ids - массив идентификаторов приборов. Будет выведена инфа только по ним.</li>
+	</ul>
+<p></p>
+<h4>Запрос:</h4>
+<pre>POST /v1/device/index HTTP/1.1
+Accept: */*
+Authorization: Bearer CYndQy1OwPtpal1OhrextgtIM7Bw5q3f
+Content-Length: 13
+Content-Type: application/x-www-form-urlencoded
+</pre>
+<br><pre>{"filter":"100"}</pre>
+<h4>Ответ:</h4>
+<pre>[
+	{
+		"id":114,
+		"name":"Тестовое устройство #100",
+		"identifier":"10:11:10:11:10:11",
+		"type":"Счетчик импульсов СИ-30",
+		"is_favourite":false,
+		"categories":[1],
+		"last_dt": null,
+		"lastOperative_dt": null,
+		"lastConfiguration_dt": null,
+		"lastManageable_dt": null,
+		"online":false,
+		"alarm":false,
+		"has_unread":false,
+		"status":offline,
+		"time_zone":
+		"GMT±0:00"
+	},
+	{
+		"id":214,
+		"name":"Тестовое устройство #100",
+		"identifier":"10:11:10:11:10:11",
+		"type":"Счетчик импульсов СИ-30",
+		"is_favourite":false,
+		"categories":[1],
+		"last_dt": null,
+		"lastOperative_dt": null,
+		"lastConfiguration_dt": null,
+		"lastManageable_dt": null,
+		"is_online":false,
+		"has_alarm":false,
+		"has_unread":false,
+		"status":offline,
+		"time_zone":"GMT±0:00"
+	}
+]</pre>
+
+<h4>Описание возвращаемых полей:</h4>
+<ul>
+	<li>id - идентификатор прибора в БД</li>
+	<li>name - пользовательское имя</li>
+	<li>identifier - GSM-шлюз =&gt; IMEI, ПЛК =&gt; MAC-адрес</li>
+	<li>type - тип прибора</li>
+	<li>time_zone - часовая зона прибора</li>
+	<li>if_favourite - прибор находится в списке "Избранные приборы" пользователя</li>
+	<li>categories - список Id категорий (папок) в которых находится прибор.
+		<br>Список ограничен правами доступа пользователя. Может быть пустым (если прибор не разнесен по категориям).
+		<br>Названия категорий возвращаются по запросу category/index.</li>
+	<li>last_dt - таймстамп последних полученных данных</li>
+	<li>lastOperative_dt - таймстамп последних полученных оперативных данных</li>
+	<li>lastConfiguration_dt - таймстамп последних полученных конфигурационных данных</li>
+	<li>lastManageable_dt - таймстамп последних полученных управляемых данных</li>
+	<li>is_online - текущее состояние (online|offline)</li>
+	<li>has_alarm - есть-ли в данный момент авария на приборе</li>
+	<li>has_unread - есть-ли в данный момент непрочтенные завершенные аварии на приборе</li>
+	<li>status - текущий статус прибора, основанный на трех вышеидущих признаках:
+		<ul>
+			<li>offline - оффлайн и нет незавершенной аварии и непрочтенной аварии;</li>
+			<li>online - онлайн и нет незавершенной аварии и непрочтенной аварии;</li>
+			<li>alarm - есть незавершенная авария (в независимости оффлайн или онлайн;</li>
+			<li>unreadalarm - есть завершенная, но непрочтенная авария (в независимости оффлайн или онлайн);</li>
+		</ul>
+	</li>
+</ul>		
+		<h3>Информация о приборе - POST device/:id</h3>
+		<p>Возвращает информацию о приборе (тип, настройки, пользовательское название итп)
+			и список параметров. Каждый параметр выдаётся сразу со своим дескриптором.
+			Локаль выдаваемых дескрипторов берется из настроек пользователя. 	
+			Также выдаются последние значения каждого параметра.</p>
+		<h4>Запрос:</h4>
+		<pre>POST /v1/device/125 HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer CYndQy1OwPtpal1OhrextgtIM7Bw5q3f
+Content-Length: 2
+Content-Type: application/x-www-form-urlencoded</pre>
+		<pre>[]</pre>
+
+		<h4>Ответ:</h4>
+		<pre>{
+	"id":4,
+	"name":"Model for si30",
+	"operative_period":15,
+	"configuration_period":15,
+	"manageable_period":15,
+	"data_fetcher_id":3,
+	"first_dt":1466061923,
+	"last_dt":"1481817866",
+	"lastOperative_dt":1481817866,
+	"lastConfiguration_dt":1481817866,
+	"lastManageable_dt":1481817866,
+	"serial_speed":19200,
+	"serial_rts":0,
+	"serial_setup":"8N1",
+	"address":null,
+	"location":"",
+	"longitude":null,
+	"latitude":null,
+	"time_zone":"GMT±0:00",
+	"archive_storage_time":90,
+	"protocol":"RTU",
+	"allow_packet_read":null,
+	"password":"",
+	"overall_timeout":100,
+	"symbol_timeout":100,
+	"factory_number":"123",
+	"offline_period": 300,
+	"identifier":"10:11:10:11:10",
+	"parameters":[
+		{
+			"id":109,
+			"code":"Ctr",
+			"format":3,
+			"dot_point":null,
+			"min_val":"",
+			"max_val":"",
+			"is_writable":1,
+			"default":"0",
+			"hash":"A158",
+			"index":-1,
+			"address":null,
+			"function":null,
+			"modbus_format":null,
+			"register_byte_order":0,
+			"register_order":0,
+			"write_function":null,
+			"length_in_device":4,
+			"name":"Current counter value",
+			"value":659,
+			"fault":0,
+			"category_id":null,
+			"can_operative":1,
+			"can_configuration":1,
+			"can_manageable":1,
+			"in_operative":1,
+			"in_parameters":1,
+			"in_tables":1,
+			"in_graphs":1,
+			"in_events":1,
+			"in_configuration":0,
+			"in_manageable":0,
+			"type":0,
+			"modbus_multiplier":"1.0000000",
+			"precision":null,
+			"bitmask_enabled":0,
+			"bitmask_value":null,
+			"measurement":
+			{
+				"title":"float",
+				"name":"floating point",
+				"precision":4,
+				"visible":0
+			}
+		}
+	],
+	"parameter_categories":[
+		{
+			"id":270,
+			"name":"Общие параметры прибора",
+			"parent_id":null,
+			"tag":"common"
+		},
+		{
+			"id":271,
+			"name":"Сетевые параметры",
+			"parent_id":null,
+			"tag":"net"
+		}
+	]
+}</pre>
+		<h4>Описание возвращаемых полей:</h4>
+		<ul>
+			<li>id - индентификатор прибора (уникален в системе)</li>
+			<li>name - пользовательское имя прибора</li>
+			<li>operative_period - период опроса оперативных данных в секундах</li>
+			<li>configuration_period - период опроса конфигурационных данных в секундах</li>
+			<li>manageable_period - период опроса управляемых данных в секундах</li>
+			<li>data_fetcher_id - системный id модема</li>
+			<li>first_dt - таймстамп первых полученных данных</li>
+			<li>last_dt - таймстамп последних полученных данных</li>
+			<li>lastOperative_dt - таймстамп последних полученных оперативных данных</li>
+			<li>lastConfiguration_dt - таймстамп последних полученных конфигурационных данных</li>
+			<li>lastManageable_dt - таймстамп последних полученных управляемых данных</li>
+			<li>serial_speed - скорость rs485</li>
+			<li>serial_rts - аппаратное RTS/CTS согласование</li>
+			<li>serial_setup - настройка сом-порта</li>
+			<li>address - адрес 485</li>
+			<li>location - географический адрес</li>
+			<li>longitude - долгота</li>
+			<li>latitude - широта</li>
+			<li>time_zone - временная зона</li>
+			<li>archive_storage_time - время хранения данных в днях</li>
+			<li>protocol - протокол (для modbus-девайсов)</li>
+			<li>allow_packet_read - разрешено ли пакетное чтение (для modbus-девайсов)</li>
+			<li>password</li>
+			<li>overall_timeout - таймаут всего сообщения в мс</li>
+			<li>symbol_timeout - таймаут между символами в мс</li>
+			<li>factory_number - заводской номер прибора</li>
+			<li>offline_period - минимальный период отсутствия данных в секундах</li>
+			<li>identifier - идентификатор прибора: GSM-шлюз =&gt; IMEI, ПЛК =&gt; MAC-адрес</li>
+			<li>parameters: [ - список параметров
+				<ul>
+					<li>id - идентификатор параметра (уникален в системе)</li>
+					<li>code - Овен-код</li>
+					<li>format - формат данных (формат хранения enum:
+						<ul>
+							<li>0 – float</li>
+							<li>1 – fixed</li>
+							<li>2 – unsigned</li>
+							<li>3 – signed</li>
+							<li>4 – enum</li>
+							<li>5 – datetime (хранится в формате unixtime, выводится дата и время)</li>
+							<li>6 – date (аналогично, выводится только дата)</li>
+							<li>7 – time – аналогично, но время</li>
+							<li>8 – string – значение параметра – строка)</li>
+						</ul>
+					</li>
+					<li>dot_point - положение десятичной точки</li>
+					<li>min_val - минимальное значение</li>
+					<li>max_val - максимальное значение</li>
+					<li>is_writable - возможность писать</li>
+					<li>default - значение по умолчанию (в конфигурационных параметрах имеет смысл)</li>
+					<li>hash - Овен-хэшкод</li>
+					<li>index - Овен-индекс</li>
+					<li>address - адрес модбас регистра (HEX)</li>
+					<li>function - modbus функция для чтения</li>
+					<li>modbus_format - формат в приборе (modbus)</li>
+					<li>register_byte_order - порядок байт в приборе (формат хранения enum):
+						<ul>
+							<li>0 – младшим байтом вперёд</li>
+							<li>1 – старшим байтом вперёд</li>
+						</ul>
+					</li>
+					<li>register_order - порядок чтения регистров (формат хранения enum):
+						<ul>
+							<li>0 – младшим регистром вперёд</li>
+							<li>1 – старшим регистром вперёд</li>
+						</ul>
+					</li>
+					<li>write_function - modbus-функция записи</li>
+					<li>length_in_device - характеристика длины параметра в байтах в приборе</li>
+					<li>category_id – идентифкатор на категорию параметра (FK на parameter_categories)</li>
+					<li>can_operative - может ли параметр быть оперативным</li>
+					<li>can_configuration - может ли параметр быть конфигурационным</li>
+					<li>can_manageable - может ли параметр быть управляемым</li>
+					<li>in_operative – является ли параметр оперативным (влияет на период опроса)</li>
+					<li>in_configuration – является ли параметр конфигурационным (влияет на период опроса) + выводить ли параметр в разделе конфигураций пользовательского интерфейса</li>
+					<li>in_manageable – является ли параметр управляемым (влияет на период опроса) +  выводить ли параметр в разеделе записей пользовательского интерфейса</li>
+					<li>in_parameters – выводить ли параметр в списке параметров пользовательского интерфейса</li>
+					<li>in_tables – выводить ли параметр в таблице (настройки) пользовательского интерфейса</li>
+					<li>in_graphs – выводить ли параметр в графиках (настройки) пользовательского интерфейса</li>
+					<li>in_events – выводить ли параметр в редакторе событий пользовательского интерфейса</li>
+					<li>name - название параметра</li>
+					<li>value - текущие значение (отформатировано как в вебе, может быть числом, строкой. сразу выводится нужная точность согласно единицам измерения, единицы измерения не выводятся)</li>
+					<li>fault - текущая ошибка (текстовое поле, пустая строка - ошибки нет, иначе может быть просто числом или "число: пояснение")</li>
+					<li>type - тип параметра (согласно протоколу ОВЕН) operative = 0 / configuration = 1. Для приборов, работающих не по протоколу ОВЕН, не имеет смысла.</li>
+					<li>modbus_multiplier - множитель для modbus приборов (для других приборов смысла не имеет). Вещественное число от 1e-7 до 1e7.</li>
+					<li>precision - точность отображения (число знаков после десятичной точки, уже применено для value). Если не задана (null) будет применена точность по-умолчанию, взятая из measurement.default_precision</li>
+					<li>bitmask_enabled - применяется ли битовая маска к модбас параметру (0 - нет, 1 - да)</li>
+					<li>bitmask_value - значение битовой маски (HEX)</li>
+					<li>measurement: [ - массив данных об единице измерения параметра
+						<ul>
+							<li>title - значение ед. изм.</li>
+							<li>name - название ед. изм.</li>
+							<li>default_precision - отображаемое число знаков после запятой (уже применено для value)</li>
+							<li>visible - отображение ед. изм.</li>
+						</ul>
+						],
+					</li>
+				</ul>
+				],
+			</li>
+			<li>parameter_categories: [ - список категорий параметров (древовидная иерархия)
+				<ul>
+					<li>id - id категории параметра</li>
+					<li>parent_id - id категории-родителя параметра</li>
+					<li>name - имя категории параметра</li>
+					<li>tag - тег категории параметра (внутренний идентификатор)</li>
+				</ul>
+				],
+			</li>
+		</ul>		
+<h3>Время последних полученных данных о приборе - POST /v1/device/last-dates/:id</h3>
+<p>Возвращает временные метки основных событий прибора.</p>
+<h4>Запрос:</h4>
+<pre>POST /v1/device/last-dates/125 HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer CYndQy1OwPtpal1OhrextgtIM7Bw5q3f
+Content-Length: 2
+Content-Type: application/x-www-form-urlencoded</pre>
+<pre>[]</pre>
+
+<h4>Ответ:</h4>
+<pre>{
+    "last_dt": "1522309356",
+    "last_operative_dt": "1522309256",
+    "last_configuration_dt": "1522309466",
+    "last_manageable_dt": "1522309416"
+}</pre>
+<h4>Описание возвращаемых полей:</h4>
+<ul>
+	<li>last_dt - временная метка получения последних данных</li>
+	<li>last_operative_dt - временная метка получения последних оперативных данных</li>
+	<li>last_configuration_dt - временная метка получения последних конфигурационных данных</li>
+	<li>last_manageable_dt - временная метка получения последних управляемых данных</li>
+
+</ul>        <br><br><a class="btn btn-default" href="https://api.owencloud.ru/#contents">К содержанию</a>
+        <h2 id="device-management">Управление приборами</h2>
+		<h3>Получение категорий приборов и шаблонов на запись POST category/index</h3>
+<p>В ответе выдается список категорий, настроенных пользователем. Формат выдачи — плоский.</p>
+<p>Отображаются только видимые (доступные) пользователю категории.
+	Id категорий необходимы для регистрации/управления прибором и шаблоном на запись.</p>
+<p>Структура списка категорий — древовидная, однако, в связи с настройками доступа, может представлять из себя лес (т.е. не иметь единого корня).</p>
+<h4>Запрос:</h4>
+<pre>POST /v1/category/index HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer 3KldmtWndWxykn5HADhDlNxytiEDIppd
+Content-Length: 2
+Content-Type: application/x-www-form-urlencoded</pre>
+<pre>[]</pre>
+<h4>Ответ:</h4>
+<pre>[
+    {
+        "id": 22,
+        "parent_id": 17,
+        "name": "Test 1",
+        "default_content": 0,
+        "devices_cnt": 1,
+        "descendant_devices_cnt": 1,
+        "descendant_unique_devices_cnt": 1,
+        "descendant_unique_devices_online_cnt": 1,
+        "descendant_unique_devices_offline_cnt": 0,
+        "descendant_unique_devices_alarm_cnt": 0,
+        "write_templates_cnt": 0,
+        "descendant_write_templates_cnt": 0,
+        "descendant_unique_write_templates_cnt": 0
+    },
+    {
+        "id": 24,
+        "parent_id": 16,
+        "name": "Test 2 ",
+        "default_content": 0,
+        "devices_cnt": 27,
+        "descendant_devices_cnt": 27,
+        "descendant_unique_devices_cnt": 27,
+        "descendant_unique_devices_online_cnt": 9,
+        "descendant_unique_devices_offline_cnt": 18,
+        "descendant_unique_devices_alarm_cnt": 1,
+        "write_templates_cnt": 0,
+        "descendant_write_templates_cnt": 0,
+        "descendant_unique_write_templates_cnt": 0
+    },
+    {
+        "id": 16,
+        "parent_id": 2,
+        "name": "Test 3",
+        "default_content": 0,
+        "devices_cnt": 1,
+        "descendant_devices_cnt": 2,
+        "descendant_unique_devices_cnt": 1,
+        "descendant_unique_devices_online_cnt": 0,
+        "descendant_unique_devices_offline_cnt": 1,
+        "descendant_unique_devices_alarm_cnt": 1,
+        "write_templates_cnt": 0,
+        "descendant_write_templates_cnt": 0,
+        "descendant_unique_write_templates_cnt": 0
+    },
+    {
+        "id": 17,
+        "parent_id": 2,
+        "name": "Test 4",
+        "default_content": 0,
+        "devices_cnt": 1,
+        "descendant_devices_cnt": 2,
+        "descendant_unique_devices_cnt": 1,
+        "descendant_unique_devices_online_cnt": 1,
+        "descendant_unique_devices_offline_cnt": 1,
+        "descendant_unique_devices_alarm_cnt": 2,
+        "write_templates_cnt": 0,
+        "descendant_write_templates_cnt": 0,
+        "descendant_unique_write_templates_cnt": 0
+    }
+]</pre>
+
+<br>
+<h4>Описание возвращаемых полей:</h4>
+<ul>
+	<li>id - id категории</li>
+	<li>parent_id - id категории-родителя (Если parent_id = 0, это означает, что корневая категория)</li>
+	<li>name - имя категории</li>
+	<li>default_content - является ли это системной корневой категорией по умолчанию.
+		<br>В нее добавляются приборы/шаблоны на запись, для которых явно не была задана категория при регистрации/редактировании.</li>
+	<li>devices_cnt - число доступных приборов находящихся, непосредственно в категории</li>
+	<li>descendant_devices_cnt - число всех доступных приборов, находящихся в категории и во всех ее подкатегориях</li>
+	<li>descendant_unique_devices_cnt - число уникальных приборов, находящихся в категории и во всех ее подкатегориях</li>
+	<li>descendant_unique_devices_online_cnt - число уникальных приборов в сети, находящихся в категории и во всех ее подкатегориях</li>
+	<li>descendant_unique_devices_offline_cnt - число уникальных приборов не в сети, находящихся в категории и во всех ее подкатегориях</li>
+	<li>descendant_unique_devices_alarm_cnt - число уникальных приборов с аварией, находящихся в категории и во всех ее подкатегориях</li>
+	<li>write_templates_cnt - число доступных шаблонов на запись, находящихся непосредственно в категории</li>
+	<li>descendant_write_templates_cnt - число всех доступных шаблонов на запись, находящихся в категории и во всех ее подкатегориях</li>
+	<li>descendant_unique_write_templates_cnt - число уникальных шаблонов на запись, находящихся в категории и во всех ее подкатегориях</li>
+</ul>
+
+
+		<div class="forbidden">
+	<h3><span class="text-warning">УСТАРЕВШИЙ МЕТОД</span> Список типов приборов - POST device-management/types-list</h3>
+	<h4 class="text-warning">Замещающий метод: device-management/types-info</h4>
+	<p>Возвращает список приборов без категорий, в формате json.</p>
+	<h4>Запрос:</h4>
+	<pre>POST /v1/device-management/types-list HTTP/1.1
+	Host: api.owencloud.ru
+	Accept: */*
+	Authorization: Bearer CYndQy1OwPtpal1OhrextgtIM7Bw5q3f
+	Content-Length: 2
+	Content-Type: application/x-www-form-urlencoded</pre>
+		<pre>[]</pre>
+
+		<h4>Ответ:</h4>
+		<pre>{
+		"1": "Терморегулятор ТРМ-32",
+		"4": "Терморегулятор ТРМ-202",
+		"5": "Счетчик импульсов СИ-30",
+		"7": "Модуль ввода аналоговый МВ110-224.8А",
+		"9": "Терморегулятор ТРМ-138",
+		"11": "Модуль ввода аналоговый МВ110-8АC",
+		"13": "Модуль дискретного вывода МУ110-16Р",
+		"15": "Терморегулятор ТРМ-251",
+		"17": "Модуль ввода дискретных сигналов МВ110-16Д (ДН)",
+		"19": "Модуль дискретного ввода/вывода МК110-8Д(ДН).4Р",
+		"21": "Модуль аналогового вывода МУ110-6У",
+		"23": "Терморегулятор ТРМ232М",
+		"25": "Терморегулятор ТРМ232М - Test",
+		"27": "Терморегулятор ТРМ232М - Testa",
+		"29": "Терморегулятор ТРМ232М - Testab",
+		"31": "Терморегулятор ТРМ232М (1)",
+		"33": "Модуль ввода дискретных сигналов МВ110-8ДФ",
+		"35": "Модуль ввода дискретных сигналов МВ110-8ДФ (1)",
+		"37": "Однофазный мультиметр МЭ110-1M",
+		"39": "Произвольный прибор Modbus",
+		"42": "ПЛК через Modbus TCP",
+		"44": "Терморегулятор ТРМ-101 v.01",
+		"46": "Терморегулятор ТРМ-101 v.02",
+		"48": "MX210 через Modbus",
+		"51": "Модуль аналогового вывода МУ110-6У - TEST CATEGORIES"
+	}</pre>
+
+	<br>
+	<h4>Описание возвращаемых полей json-объекта:</h4>
+	<ul>
+		<li>key - id типа прибора</li>
+		<li>value - описание типа прибора</li>
+	</ul>
+</div>		<h3>Список типов приборов - POST device-management/types-info</h3>
+		<p>Возвращает список доступных типов приборов упорядоченный по названиям</p>
+		<h4>Запрос:</h4>
+		<pre>POST /v1/device-management/types-info HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer CYndQy1OwPtpal1OhrextgtIM7Bw5q3f
+Content-Length: 2
+Content-Type: application/x-www-form-urlencoded</pre>
+		<pre>[]</pre>
+
+		<h4>Ответ:</h4>
+		<pre>[
+    {
+        "id": 57,
+        "tag": "mx210_over_modbus",
+        "group_type": "modbus_various",
+        "name": "MX210 через Modbus"
+    },
+    {
+        "id": 53,
+        "tag": "mu110-6u",
+        "group_type": "owen",
+        "name": "Модуль аналогового вывода МУ110-6У"
+    },   
+    {
+        "id": 42,
+        "tag": "plc_modbus",
+        "group_type": "modbus_various",
+        "name": "ПЛК через Modbus TCP"
+    },
+    {
+        "id": 39,
+        "tag": "modbus",
+        "group_type": "modbus_various",
+        "name": "Произвольный прибор Modbus"
+    },  
+    {
+        "id": 66,
+        "tag": "modbus_template_1",
+        "group_type": "modbus_template",
+        "name": "Первый прибор Modbus с шаблоном"
+    },
+...
+]</pre>
+
+		<br>
+		<h4>Описание возвращаемых полей json-объекта:</h4>
+<ul>
+    <li>id - id типа прибора</li>
+    <li>tag - тэг типа прибора (нужен в некоторых случаях)</li>
+	<li>group_type - группа типов приборов. В системе на данный момент есть следующие группы:
+		<ul>
+		<li>'container' - Контейнерные приборы
+			<ul>
+				<li>tag='mx210' - MX210</li>
+			</ul>
+		</li>
+		<li>'modbus_template' - Приборы Modbus по шаблонам
+			<ul>
+				<li>tag='trm500_vf_modbus_template' - ТРМ500-ВФ Терморегулятор с WiFi</li>
+				<li>...</li>
+			</ul>
+		</li>
+		<li>'modbus_various' - Произвольные приборы Modbus. В данный момент состоит из трех типов:
+			<ul>
+				<li>tag='modbus' - Произвольный прибор Modbus</li>
+				<li>tag='mx210_over_modbus' - MX210 через Modbus</li>
+				<li>tag='plc_modbus' - ПЛК через Modbus TCP</li>
+			</ul>
+		</li>
+		<li>'owen' - Приборы ОВЕН</li>
+	</ul>	</li>
+	<li>name - название типа прибора, согласно языковой настройке</li>
+</ul>
+
+		<h3>Регистрация нового прибора - POST device-management/register</h3>
+		<p>Регистрирует новый прибор.</p>
+        <p>Параметры запроса:</p>
+        <ul>
+            <li>identifier
+				<ul>
+					<li>Owen, произвольный прибор Modbus, Modbus прибор по шаблону - IMEI модема, через который подключён прибор.</li>
+					<li>ПЛК через Modbus TCP - MAC-адрес прибора.</li>
+					<li>MX210 через Modbus, MX210, ТРМ500-ВФ Терморегулятор с WiFi - заводской номер прибора.</li>
+				</ul>
+			</li>
+            <li>address - 2-байтовое десятиричное число</li>
+            <li>device_type_id - id типа прибора.
+				<br>Доступные значения возвращаются по запросу device-management/types-info.</li>
+            <li>name - человекопонятное имя, не более 64 символов.</li>
+			<li>categories_list - массив id категорий, куда стоит отнести прибор.
+				<br>Доступные значения возвращаются по запросу category/index.
+				<br>Если оставить поле пустым, то прибор будет добавлен или в одну из первых досутпных категорий, в случае ограниченных прав на дерево, или в корень дерева, в случае полных прав на дерево.</li>
+            <li>time_zone - смещение времени прибора. <br>Ниже приведена таблица, в которой слева указано смещение часового
+                пояса в минутах. <br>Это ожидаемое функцией значение. Справа представлено смещение часового пояса в GMT-формате.
+                <ul>
+                    <li>-660 =&gt; 'GMT-11:00',</li>
+                    <li>-600 =&gt; 'GMT-10:00',</li>
+                    <li>-540 =&gt; 'GMT-9:00',</li>
+                    <li>-480 =&gt; 'GMT-8:00',</li>
+                    <li>-420 =&gt; 'GMT-7:00',</li>
+                    <li>-360 =&gt; 'GMT-6:00',</li>
+                    <li>-300 =&gt; 'GMT-5:00',</li>
+                    <li>-240 =&gt; 'GMT-4:00',</li>
+                    <li>-210 =&gt; 'GMT-3:30',</li>
+                    <li>-180 =&gt; 'GMT-3:00',</li>
+                    <li>-120 =&gt; 'GMT-2:00',</li>
+                    <li>-60	 =&gt; 'GMT-1:00',</li>
+                    <li>0	 =&gt; 'GMT±0:00',</li>
+                    <li>60	 =&gt; 'GMT+1:00',</li>
+                    <li>120	 =&gt; 'GMT+2:00',</li>
+                    <li>180	 =&gt; 'GMT+3:00',</li>
+                    <li>210	 =&gt; 'GMT+3:30',</li>
+                    <li>240	 =&gt; 'GMT+4:00',</li>
+                    <li>300	 =&gt; 'GMT+5:00',</li>
+                    <li>330	 =&gt; 'GMT+5:30',</li>
+                    <li>360	 =&gt; 'GMT+6:00',</li>
+                    <li>420	 =&gt; 'GMT+7:00',</li>
+                    <li>480	 =&gt; 'GMT+8:00',</li>
+                    <li>540	 =&gt; 'GMT+9:00',</li>
+                    <li>570	 =&gt; 'GMT+9:30',</li>
+                    <li>600	 =&gt; 'GMT+10:00',</li>
+                    <li>660	 =&gt; 'GMT+11:00',</li>
+                    <li>720	 =&gt; 'GMT+12:00',</li>
+                </ul>
+            </li>
+            <li>archive_storage_time - время хранения архива. По умолчанию ожидается значение "90".</li>
+			<li>factory_number - заводской номер прибора, необязательное поле. В случае типа прибора с tag="mx210_over_modbus" (MX210 через Modbus) заводской номер
+			задаётся равным полю 'identifier'.</li>
+        </ul>
+		<h4>Запрос:</h4>
+		<pre>POST /v1/device-management/register HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer CYndQy1OwPtpal1OhrextgtIM7Bw5q3f
+Content-Length: 2
+Content-Type: application/x-www-form-urlencoded</pre>
+		<pre>{
+	"identifier":"6a:77:00:ff:ee:ee",
+	"address":"111",
+	"device_type_id":"42",
+	"name":"test PLC via Modbus TCP1",
+	"categories_list":[1,2,3],
+	"time_zone":"0",
+	"archive_storage_time":"90",
+	"factory_number":"40123456"
+}</pre>
+
+		<h4>Ответ:</h4>
+		<pre>{
+    "code": 43523,
+    "description": "Прибор был успешно зарегистрирован."
+}</pre>
+		<br>
+		<h4>Описание возвращаемых полей:</h4>
+<ul>
+    <li>code - id нового прибора или код события.</li>
+    <li>description - описание события.</li>
+</ul>
+		<h3>Изменение прибора - POST device-management/edit/:id</h3>
+<p>Изменяет прибор по id. В системе на данный момент есть следующие группы:</p>
+	<ul>
+		<li>'container' - Контейнерные приборы
+			<ul>
+				<li>tag='mx210' - MX210</li>
+			</ul>
+		</li>
+		<li>'modbus_template' - Приборы Modbus по шаблонам
+			<ul>
+				<li>tag='trm500_vf_modbus_template' - ТРМ500-ВФ Терморегулятор с WiFi</li>
+				<li>...</li>
+			</ul>
+		</li>
+		<li>'modbus_various' - Произвольные приборы Modbus. В данный момент состоит из трех типов:
+			<ul>
+				<li>tag='modbus' - Произвольный прибор Modbus</li>
+				<li>tag='mx210_over_modbus' - MX210 через Modbus</li>
+				<li>tag='plc_modbus' - ПЛК через Modbus TCP</li>
+			</ul>
+		</li>
+		<li>'owen' - Приборы ОВЕН</li>
+	</ul><p>Каждой группе или типу соответствует свой набор изменяемых параметров, которые приведены ниже с описанием.</p>
+<p>Общие для всех типов приборов параметры:</p>
+<ul>
+    <li>id редактируемого прибора передаётся в адресной строке</li>
+</ul>
+<h4>Описание параметров запроса</h4>
+<ul>
+	<li>identifier - идентификатор. IMEI модема, MAC-адрес или заводской номер. <strong>Важно! Идентификатор должен быть уникальным в пределах указанного сетевого адреса.</strong></li>
+	<li>token - токен авторизации для ПЛК. Произвольная строка.</li>
+	<li>is_regenerate_token - Генерация нового токена. Если задано true - будет сгенерирован новый токен. Если false - будет использовать существующий токен.</li>
+	<li>name - Название прибора.</li>
+	<li>categories_list - массив id категорий, куда стоит отнести прибор.
+		<br>Доступные значения возвращаются по запросу category/index.
+		<br>Если оставить поле пустым, то прибор будет добавлен или в одну из первых досутпных категорий, в случае ограниченных прав на дерево, или в корень дерева, в случае полных прав на дерево.</li>
+	<li>time_zone - Часовой пояс. Ниже приведена таблица, в которой слева указано смещение часового
+		пояса в минутах. Это ожидаемое методом значение. Справа представлено смещение часового пояса в GMT-формате.
+		<ul>
+			<li>-660 =&gt; 'GMT-11:00',</li>
+			<li>-600 =&gt; 'GMT-10:00',</li>
+			<li>-540 =&gt; 'GMT-9:00',</li>
+			<li>-480 =&gt; 'GMT-8:00',</li>
+			<li>-420 =&gt; 'GMT-7:00',</li>
+			<li>-360 =&gt; 'GMT-6:00',</li>
+			<li>-300 =&gt; 'GMT-5:00',</li>
+			<li>-240 =&gt; 'GMT-4:00',</li>
+			<li>-210 =&gt; 'GMT-3:30',</li>
+			<li>-180 =&gt; 'GMT-3:00',</li>
+			<li>-120 =&gt; 'GMT-2:00',</li>
+			<li>-60	 =&gt; 'GMT-1:00',</li>
+			<li>0	 =&gt; 'GMT±0:00',</li>
+			<li>60	 =&gt; 'GMT+1:00',</li>
+			<li>120	 =&gt; 'GMT+2:00',</li>
+			<li>180	 =&gt; 'GMT+3:00',</li>
+			<li>210	 =&gt; 'GMT+3:30',</li>
+			<li>240	 =&gt; 'GMT+4:00',</li>
+			<li>300	 =&gt; 'GMT+5:00',</li>
+			<li>330	 =&gt; 'GMT+5:30',</li>
+			<li>360	 =&gt; 'GMT+6:00',</li>
+			<li>420	 =&gt; 'GMT+7:00',</li>
+			<li>480	 =&gt; 'GMT+8:00',</li>
+			<li>540	 =&gt; 'GMT+9:00',</li>
+			<li>570	 =&gt; 'GMT+9:30',</li>
+			<li>600	 =&gt; 'GMT+10:00',</li>
+			<li>660	 =&gt; 'GMT+11:00',</li>
+			<li>720	 =&gt; 'GMT+12:00',</li>
+		</ul>
+	</li>
+	<li>archive_storage_time - Время хранения архива в днях.</li>
+	<li>operative_period - "Оперативный" период опроса в секундах.</li>
+	<li>configuration_period - "Конфигурационный" период опроса в секундах.</li>
+	<li>manageable_period - "Управляющий" период опроса в секундах.</li>
+	<li>offline_period - минимальный период отсутствия данных в секундах (значение должно быть больше минимального периода опроса параметров).</li>
+	<li>factory_number - заводской номер прибора.</li>
+	<li>serial_speed - Скорость COM-порта. Может принимать одно из следующих значений:
+		<ul>
+			<li>300</li>
+			<li>600</li>
+			<li>1200</li>
+			<li>2400</li>
+			<li>4800</li>
+			<li>9600</li>
+			<li>14400</li>
+			<li>19200</li>
+			<li>28800</li>
+			<li>38400</li>
+			<li>57600</li>
+			<li>115200</li>
+		</ul>
+	</li>
+	<li>serial_rts - Аппаратное RTS/CTS согласование. Использовать аппаратное RTS/CTS согласование при обмене через RS-232. Может принимать значения: 1 - включено, 0 - выключено.</li>
+	<li>serial_setup - Настройка COM-порта.
+		<ul>
+			<li>'8N1'</li>
+			<li>'8N2'</li>
+			<li>'8O1'</li>
+			<li>'8O2'</li>
+			<li>'8E1'</li>
+			<li>'8E2'</li>
+		</ul>
+	</li>
+	<li>address - Адрес в сети.</li>
+	<li>symbol_timeout - Таймаут между символами в миллисекундах.</li>
+	<li>overall_timeout - Таймаут всего сообщения в миллисекундах.</li>
+	<li>protocol - протокол Mobus. Возможные значения: RTU, ASCII</li>
+	<li>allow_packet_read - Разрешать пакетное чтение. Система будет группировать запросы к соседним Modbus-регистрам. Может принимать значения: 1 - разрешить, 0 - запретить.</li>
+	<li>factory_number - заводской номер прибора.</li>
+</ul>
+
+<h4>Параметры запроса для группы <strong>Приборы ОВЕН</strong>:</h4>
+<ul>
+    <li>identifier - IMEI модема, через который подключён прибор</li>
+    <li>name{*}</li>
+    <li>time_zone{*}</li>
+	<li>address{*}</li>
+    <li>archive_storage_time{*}</li>
+    <li>operative_period{*}</li>
+    <li>configuration_period{*}</li>
+    <li>manageable_period{*}</li>
+	<li>offline_period{*}</li>
+    <li>symbol_timeout{*}</li>
+    <li>overall_timeout{*}</li>
+	<li>serial_speed{*}</li>
+	<li>serial_rts</li>
+	<li>serial_setup</li>
+	<li>categories_list</li>
+	<li>factory_number</li>
+</ul>
+<h4>Параметры запроса для группы <strong>Приборы Modbus по шаблонам</strong> или для конкретного типа <strong>Произвольный прибор Modbus</strong> (tag='modbus'):</h4>
+<ul>
+    <li>identifier - IMEI модема, через который подключён прибор. </li>
+    <li>name{*}</li>
+    <li>time_zone{*}</li>
+    <li>archive_storage_time{*}</li>
+    <li>operative_period{*}</li>
+    <li>configuration_period{*}</li>
+    <li>manageable_period{*}</li>
+	<li>offline_period{*}</li>
+    <li>address{*}</li>
+    <li>symbol_timeout{*}</li>
+    <li>overall_timeout{*}</li>
+    <li>protocol{*}</li>
+    <li>allow_packet_read</li>
+	<li>serial_speed{*}</li>
+	<li>serial_setup{*}</li>
+	<li>serial_rts</li>
+	<li>categories_list</li>
+	<li>factory_number</li>
+</ul>
+<h4>Параметры запроса для конкретного типа <strong>ТРМ500-ВФ Терморегулятор с WiFi</strong> (tag='trm500_vf_modbus_template'):</h4>
+<ul>
+	<li>identifier - Заводской номер прибора.</li>
+	<li>is_regenerate_token{*}</li>
+	<li>name{*}</li>
+	<li>time_zone{*}</li>
+	<li>archive_storage_time{*}</li>
+	<li>operative_period{*}</li>
+	<li>configuration_period{*}</li>
+	<li>manageable_period{*}</li>
+	<li>offline_period{*}</li>
+	<li>categories_list</li>
+</ul>
+<h4>Параметры запроса для конкретного типа по шаблонам <strong>MX210 через Modbus</strong> (tag='mx210_over_modbus') и контейнерного прибора <strong>MX210</strong> (tag='mx210'):</h4>
+<ul>
+    <li>identifier - Заводской номер прибора.</li>
+    <li>name{*}</li>
+    <li>time_zone{*}</li>
+    <li>archive_storage_time{*}</li>
+    <li>operative_period{*}</li>
+    <li>configuration_period{*}</li>
+    <li>manageable_period{*}</li>
+	<li>offline_period{*}</li>
+	<li>categories_list</li>
+	<li>token</li>
+</ul>
+<h4>Параметры запроса для конкретного типа <strong>ПЛК через Modbus TCP</strong> (tag='plc_modbus'):</h4>
+<ul>
+    <li>identifier - MAC-адрес прибора.</li>
+    <li>is_regenerate_token{*}</li>
+    <li>name{*}</li>
+    <li>time_zone{*}</li>
+    <li>archive_storage_time{*}</li>
+    <li>operative_period{*}</li>
+    <li>configuration_period{*}</li>
+    <li>manageable_period{*}</li>
+	<li>offline_period{*}</li>
+	<li>categories_list</li>
+	<li>factory_number</li>
+</ul>
+<p>Для "MX210", "MX210 через Modbus" и "ТРМ500-ВФ" поле "identifier" дублируется в поле "factory_number".</p>
+<h4>Запрос:</h4>
+<pre>POST /v1/device-management/edit/42283 HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer CYndQy1OwPtpal1OhrextgtIM7Bw5q3f
+Content-Type: application/x-www-form-urlencoded</pre>
+<p>Тело запроса для группы <strong>Приборы ОВЕН</strong>:</p>
+<pre>{
+    "identifier":           "862631033075770",
+    "name":                 "Модуль аналогового вывода МУ110-6У",
+    "time_zone":            "330",
+    "address":              "40",
+    "archive_storage_time": "90",
+    "operative_period":     "5",
+    "configuration_period": "5",
+    "manageable_period":    "5",
+    "offline_period":       "300",
+    "serial_speed":         "9600",
+    "serial_rts":           "1",
+    "serial_setup":         "8N1",
+    "symbol_timeout":       "100",
+    "overall_timeout":      "100",
+    "categories_list":      [1,2],
+	"factory_number":		12345678901234567
+}</pre>
+<p>Тело запроса для группы <strong>Приборы Modbus по шаблонам</strong> или для конкретного типа <strong>Произвольный прибор Modbus</strong> (tag='modbus'):</p>
+<pre>{
+    "identifier":           "OCWM24FCA5EE33CF88121B3428D0",
+    "name":                 "МВ110-8АС_Modbus",
+    "time_zone":            "330",
+    "archive_storage_time": "90",
+    "operative_period":     "5",
+    "configuration_period": "5",
+    "manageable_period":    "5",
+    "offline_period":       "300",
+    "address":              "40",
+    "symbol_timeout":       "100",
+    "overall_timeout":      "100",
+    "protocol":             "RTU",
+    "allow_packet_read":    "1",
+    "serial_speed":         "9600",
+    "serial_rts":           "1",
+    "serial_setup":         "8N1",
+    "categories_list":      [1,2],
+	"factory_number":		12345678901234567
+}</pre>
+<p>Тело запроса для конкретного типа <strong>ТРМ500-ВФ Терморегулятор с WiFi</strong> (tag='trm500_vf_modbus_template'):</p>
+<pre>{
+    "identifier":           "67610170532168720",
+    "is_regenerate_token":  true,
+    "name":                 "PLC304-debit-E",
+    "time_zone":            "330",
+    "archive_storage_time": "90",
+    "operative_period":     "15",
+    "configuration_period": "15",
+    "manageable_period":    "15",
+    "offline_period":       "300",
+    "categories_list":      [1,2]
+}</pre>
+<p>Тело запроса для конкретного типа по шаблонам <strong>MX210 через Modbus</strong> (tag='mx210_over_modbus') и контейнерного прибора <strong>MX210</strong> (tag='mx210'):</p>
+<pre>{
+    "identifier":           "67610170532168720",
+    "name":                 "Mx210_GTP",
+    "time_zone":            "330",
+    "archive_storage_time": "90",
+    "operative_period":     "15",
+    "configuration_period": "15",
+    "manageable_period":    "15",
+    "offline_period":       "300",
+    "categories_list":      [1,2],
+    "token":                "123456"
+}</pre>
+<p>Тело запроса для конкретного типа <strong>ПЛК через Modbus TCP</strong> (tag='plc_modbus'):</p>
+<pre>{
+    "identifier":           "00:42:23:01:77:6B",
+    "is_regenerate_token":  true,
+    "name":                 "PLC304-debit-E",
+    "time_zone":            "330",
+    "archive_storage_time": "90",
+    "operative_period":     "15",
+    "configuration_period": "15",
+    "manageable_period":    "15",
+    "offline_period":       "300",
+    "categories_list":      [1,2],
+	"factory_number":		12345678901234567
+}</pre>
+
+<h4>Ответ:</h4>
+<pre>{
+    "code": "success",
+    "description": "Настройки прибора (Модуль аналогового вывода МУ110-6У) были успешно обновлены."
+}</pre>
+<br>
+<h4>Описание возвращаемых полей:</h4>
+<ul>
+    <li>code - код события.</li>
+    <li>description - описание события.</li>
+</ul>		<h3>Удаление прибора - POST device-management/delete/:id</h3>
+<p>Удаляет прибор по id.</p>
+<p>Параметры запроса:</p>
+<ul>
+    <li>id удаляемого прибора передаётся в адресной строке</li>
+</ul>
+<h4>Запрос:</h4>
+<pre>POST /v1/device-management/delete/42227 HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer CYndQy1OwPtpal1OhrextgtIM7Bw5q3f
+Content-Length: 2
+Content-Type: application/x-www-form-urlencoded</pre>
+<pre>{}</pre>
+
+<h4>Ответ:</h4>
+<pre>{
+    "code": "success",
+    "description": "Прибор (test PLC via Modbus TCP2) был успешно удален из системы."
+}</pre>
+<br>
+<h4>Описание возвращаемых полей:</h4>
+<ul>
+    <li>code - код события.</li>
+    <li>description - описание события.</li>
+</ul>		<h3>Изменение общих настроек параметров - POST device-management/update-parameter-settings/:id</h3>
+<p>Позволяет настроить правила отображения параметра. В частности определить, является ли параметр:</p>
+    <ul>
+        <li>Оперативным</li>
+        <li>Конфигурационным</li>
+        <li>Управляемым</li>
+        <li>Отображаемым в параметрах</li>
+        <li>Отображаемым в таблицах</li>
+        <li>Отображаемым в графиках</li>
+        <li>Отображаемым в событиях</li>
+    </ul>
+<p>ID прибора передаётся в адресной строке. Остальные параметры передаются в теле запроса.</p>
+<p>Параметры запроса:</p>
+<ul>
+    <li>ID - id прибора. Передаётся в адресной строке.</li>
+    <li>in_operative - является Оперативным?</li>
+    <li>in_configuration - является Конфигурационным?</li>
+    <li>in_manageable - является Управляемым?</li>
+    <li>in_parameters - отображать в параметрах?</li>
+    <li>in_tables - отображать в таблицах в таблицах?</li>
+    <li>in_graphs - отображать в графиках?</li>
+    <li>in_events - отображать в событиях?</li>
+</ul>
+<p>Параметры с префиксом 'in_' должны принимать одно из возможных цифровых значений - 1 (true) или 0 (false).</p>
+<h4>Запрос:</h4>
+<pre>POST /v1/device-management/update-parameter-settings/43055 HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer CYndQy1OwPtpal1OhrextgtIM7Bw5q3f
+Content-Length: 2
+Content-Type: application/x-www-form-urlencoded</pre>
+<pre>{
+	"287521" : {
+        "in_operative": 1,
+        "in_configuration": 0,
+        "in_manageable": 1,
+        "in_parameters": 1,
+        "in_tables": 0,
+        "in_graphs": 1,
+        "in_events": 0
+    },
+    "302815" : {
+        "in_operative": 0,
+        "in_configuration": 0,
+        "in_manageable": 1,
+        "in_parameters": 1,
+        "in_tables": 1,
+        "in_graphs": 1,
+        "in_events": 1
+    }
+}</pre>
+<p>Передавать можно один или несколько параметров. При этом нет обязательных полей. Достаточно указать
+те, что вы обновляете. Например, запрос вида:</p>
+<pre>    "287521" : {
+        "in_operative": 1,
+        "in_configuration": 0,
+        "in_parameters": 1,
+        "in_events": 0
+    }
+</pre>
+<p>будет обработан корректно.</p>
+
+<h4>Ответ:</h4>
+<pre>{
+    "code": "success",
+    "description": "Настройки параметров прибора (MX210-311 #724) были успешно обновлены."
+}</pre>
+<br>
+<h4>Описание возвращаемых полей:</h4>
+<ul>
+    <li>code - код результата обработки запроса.</li>
+    <li>description - описание полученного результата.</li>
+</ul>        <br><br><a class="btn btn-default" href="https://api.owencloud.ru/#contents">К содержанию</a>
+        <h2 id="parameter-management">Управление modbus параметрами</h2>
+		<h3>Создание нового modbus параметра - POST modbus/create-parameter/:id</h3>
+<p>Создаёт modbus параметр, привязанный к прибору по deviceId. id прибора передаётся в адресной строке. Остальные параметры
+	передаются в теле запроса.</p>
+<p>Параметры запроса:</p>
+<ul>
+    <li>deviceId - id прибора, для которого создаётся новый параметр. Передаётся в адресной строке.</li>
+    <li>code - код параметра. Не более 20 символов, ограниченных следующими правилами. (A-Z, a-z, 0-9, '.', '/', '_' и '-').
+        Данный код должен быть уникальным в пределах прибора.</li>
+    <li>read_function - функция чтения. Может принимать следующие булевы значения:
+        <ul>
+            <li>0 - не читаемый</li>
+            <li>1 - Функция чтения Modbus 01</li>
+            <li>2 - Функция чтения Modbus 02</li>
+            <li>3 - Функция чтения Modbus 03</li>
+            <li>4 - Функция чтения Modbus 04</li>
+        </ul>
+    </li>
+    <li>write_function - функция записи. Может принимать следующие булевы значения:
+        <ul>
+            <li>0 - не записываемый</li>
+            <li>5 - Функция записи Modbus 05</li>
+            <li>6 - Функция записи Modbus 06</li>
+            <li>15 - Функция записи Modbus 15</li>
+            <li>16 - Функция записи Modbus 16</li>
+        </ul>
+    </li>
+    <li>address - адрес регистрации (HEX). Строка с HEX представлением числа, например 0001.</li>
+    <li>device_format - формат хранения. Может принимать следующие булевы значения:
+        <ul>
+            <li>0 - float</li>
+            <li>1 - uint16</li>
+            <li>2 - int16</li>
+            <li>3 - uint32</li>
+            <li>4 - int32</li>
+            <li>5 - bool</li>
+            <li>6 - double</li>
+            <li>7 - int64</li>
+            <li>8 - uint64</li>
+        </ul>
+    </li>
+    <li>register_least_byte_first - определяет порядок байтов в регистре. 0 - старшим байтом вперёд. 1 - младшим байтом вперёд.</li>
+	<li>least_register_first - определяет порядок чтения регистров. 0 - старшим регистром вперёд. 1 - младшим регистром вперёд.</li>
+    <li>measure - отображаемая единица изменения. Доступны следующие целочисленные варианты (Значение по умолчанию - 15):
+        <ul>
+			<li>36 - A (сила тока: А)</li>
+			<li>19 - atm (давление: атм)</li>
+			<li>28 - bar (давление: Бар)</li>
+			<li>4 - deg (температура: °C)</li>
+			<li>13 - Gcal (тепловая энергия: Гкал)</li>
+			<li>8 - Gcal/h (тепловая мощность: Гкал/ч)</li>
+			<li>26 - GJ (тепловая энергия: ГДж)</li>
+			<li>33 - GJ/h (тепловая мощность: ГДж/ч)</li>
+			<li>34 - grad (угол: град)</li>
+			<li>17 - h (время: ч)</li>
+			<li>37 - Hz (частота: Гц)</li>
+			<li>31 - J/h (тепловая мощность: Дж/ч)</li>
+			<li>30 - kg/h (массовый расход: кг/ч)</li>
+			<li>5 - kgf/cm2 (давление: кг·с/см²)</li>
+			<li>53 - km/h (скорость: км/ч)</li>
+			<li>18 - kPa (давление: кПа)</li>
+			<li>49 - kVAr (электрическая мощность: кВАр)</li>
+			<li>48 - kVArh (электрическая энергия: кВАр·ч)</li>
+			<li>11 - kW (электрическая мощность: кВт)</li>
+			<li>10 - kWh (электрическая энергия: кВт·ч)</li>
+			<li>38 - l (объем: л)</li>
+			<li>39 - m (длина: м)</li>
+			<li>55 - m/s (скорость: м/с)</li>
+			<li>14 - m3 (объем: м³)</li>
+			<li>51 - m3/day (объемный расход: м³/сут)</li>
+			<li>9 - m3/h (объемный расход: м³/ч)</li>
+			<li>29 - m3/min (объемный расход: м³/мин)</li>
+			<li>32 - m3/sec (объемный расход: м³/сек)</li>
+			<li>47 - mA (сила тока: мА)</li>
+			<li>56 - min (время: мин)</li>
+			<li>41 - mm (длина: мм)</li>
+			<li>21 - mmhg (давление: мм рт. ст.)</li>
+			<li>20 - MPa (давление: МПа)</li>
+			<li>23 - ms (время: мс)</li>
+			<li>25 - MW (электрическая мощность: МВт)</li>
+			<li>24 - MWh (электрическая энергия: МВт·ч)</li>
+			<li>50 - n.m3 (объем нормальный: н.куб.м)</li>
+			<li>15 - none (отсутствует: без единиц)</li>
+			<li>16 - percent (процент: %)</li>
+			<li>46 - sec (время: сек)</li>
+			<li>12 - t (масса: т)</li>
+			<li>6 - t/h (массовый расход: т/ч)</li>
+			<li>52 - t/m3 (плотность: т/м³)</li>
+			<li>35 - V (напряжение: В)</li>
+			<li>27 - W (электрическая мощность: Вт)</li>
+        </ul>
+    </li>
+    <li>name - человекопонятное название.</li>
+    <li>precision - точность отображения. Диапазон доступных значений (Значение по умолчанию - 0):
+        <ul>
+            <li>0 - 0 знаков после точки.</li>
+            <li>1 - 1 знак после точки.</li>
+            <li>2 - 2 знака после точки.</li>
+            <li>3 - 3 знака после точки.</li>
+            <li>4 - 4 знака после точки.</li>
+            <li>5 - 5 знаков после точки.</li>
+        </ul>
+    </li>
+    <li>multiplier - множитель. Значение по умолчанию - 1.0000000.</li>
+	<li>category - id категории параметров. Список категорий выдается в запросе информации о приборе. Если не указывать или не передавать, параметр будет создан в корне дерева параметров прибора.</li>
+	<li>bitmask_enabled - применяется ли битовая маска к модбас параметру (0 - нет, 1 - да. Значение по умолчанию - 0)</li>
+	<li>bitmask_value - значение битовой маски (HEX). Строка с HEX представлением числа, например 7E00.</li>
+</ul>
+<h4>Запрос:</h4>
+<pre>POST /v1/modbus/create-parameter/43473 HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer CYndQy1OwPtpal1OhrextgtIM7Bw5q3f
+Content-Length: 2
+Content-Type: application/x-www-form-urlencoded</pre>
+<pre>{
+	"code":"read4write16uint32",
+	"read_function":"4",
+	"write_function":"16",
+	"address":"0010",
+	"device_format":"3",
+	"register_least_byte_first":"0",
+	"least_register_first":"0",
+	"measure":"39",
+	"name":"read3write16uint32",
+	"precision":"2",
+	"multiplier":"1.0000000",
+	"category":"127",
+	"bitmask_enabled":1,
+	"bitmask_value":"E0"
+}</pre>
+
+<h4>Ответ:</h4>
+<pre>{
+    "parameter_id": 455165,
+    "code": "success",
+    "description": "Modbus параметр (read2write15uint3121232) был успешно создан."
+}</pre>
+<br>
+<h4>Описание возвращаемых полей:</h4>
+<ul>
+    <li>parameter_id - код нового прибора или код события.</li>
+    <li>code - статус запроса.</li>
+    <li>description - описание статуса запроса.</li>
+</ul>		<h3>Изменение modbus параметра - POST modbus/edit-parameter/:id</h3>
+<p>Изменяет modbus параметр c parameterId. id параметра передаётся в адресной строке. Остальные параметры запроса
+    передаются в теле запроса. <em>Если какие-то параметры не переданы, то система будет считать их неизменными!</em></p>
+<p>Параметры запроса:</p>
+<ul>
+    <li>id изменяемого параметра передаётся в адресной строке.</li>
+    <li>read_function - функция чтения. Может принимать следующие булевы значения:
+        <ul>
+            <li>0 - не читаемый</li>
+            <li>1 - 01</li>
+            <li>2 - 02</li>
+            <li>3 - 03</li>
+            <li>4 - 04</li>
+        </ul>
+    </li>
+    <li>write_function - функция записи. Может принимать следующие булевы значения:
+        <ul>
+            <li>0 - не записываемый</li>
+            <li>5 - 05</li>
+            <li>6 - 06</li>
+            <li>15 - 15</li>
+            <li>16 - 16</li>
+        </ul>
+    </li>
+    <li>address - адрес регистра (HEX). Строка с HEX представлением числа, например 0001.</li>
+    <li>device_format - формат хранения. Может принимать следующие булевы значения:
+        <ul>
+            <li>0 - float</li>
+            <li>1 - uint16</li>
+            <li>2 - int16</li>
+            <li>3 - uint32</li>
+            <li>4 - int32</li>
+            <li>5 - bool</li>
+            <li>6 - double</li>
+            <li>7 - int64</li>
+            <li>8 - uint64</li>
+        </ul>
+    </li>
+	<li>register_least_byte_first - определяет порядок байтов в регистре. 0 - старшим байтом вперёд. 1 - младшим байтом вперёд.</li>
+	<li>least_register_first - определяет порядок чтения регистров. 0 - старшим регистром вперёд. 1 - младшим регистром вперёд.</li>
+    <li>measure - отображаемая единица изменения. Доступны следующие целочисленные варианты:
+        <ul>
+            <li>36 - A (сила тока: А)</li>
+			<li>19 - atm (давление: атм)</li>
+			<li>28 - bar (давление: Бар)</li>
+			<li>4 - deg (температура: °C)</li>
+			<li>13 - Gcal (тепловая энергия: Гкал)</li>
+			<li>8 - Gcal/h (тепловая мощность: Гкал/ч)</li>
+			<li>26 - GJ (тепловая энергия: ГДж)</li>
+			<li>33 - GJ/h (тепловая мощность: ГДж/ч)</li>
+			<li>34 - grad (угол: град)</li>
+			<li>17 - h (время: ч)</li>
+			<li>37 - Hz (частота: Гц)</li>
+			<li>31 - J/h (тепловая мощность: Дж/ч)</li>
+			<li>30 - kg/h (массовый расход: кг/ч)</li>
+			<li>5 - kgf/cm2 (давление: кг·с/см²)</li>
+			<li>53 - km/h (скорость: км/ч)</li>
+			<li>18 - kPa (давление: кПа)</li>
+			<li>49 - kVAr (электрическая мощность: кВАр)</li>
+			<li>48 - kVArh (электрическая энергия: кВАр·ч)</li>
+			<li>11 - kW (электрическая мощность: кВт)</li>
+			<li>10 - kWh (электрическая энергия: кВт·ч)</li>
+			<li>38 - l (объем: л)</li>
+			<li>39 - m (длина: м)</li>
+			<li>55 - m/s (скорость: м/с)</li>
+			<li>14 - m3 (объем: м³)</li>
+			<li>51 - m3/day (объемный расход: м³/сут)</li>
+			<li>9 - m3/h (объемный расход: м³/ч)</li>
+			<li>29 - m3/min (объемный расход: м³/мин)</li>
+			<li>32 - m3/sec (объемный расход: м³/сек)</li>
+			<li>47 - mA (сила тока: мА)</li>
+			<li>56 - min (время: мин)</li>
+			<li>41 - mm (длина: мм)</li>
+			<li>21 - mmhg (давление: мм рт. ст.)</li>
+			<li>20 - MPa (давление: МПа)</li>
+			<li>23 - ms (время: мс)</li>
+			<li>25 - MW (электрическая мощность: МВт)</li>
+			<li>24 - MWh (электрическая энергия: МВт·ч)</li>
+			<li>50 - n.m3 (объем нормальный: н.куб.м)</li>
+			<li>15 - none (отсутствует: без единиц)</li>
+			<li>16 - percent (процент: %)</li>
+			<li>46 - sec (время: сек)</li>
+			<li>12 - t (масса: т)</li>
+			<li>6 - t/h (массовый расход: т/ч)</li>
+			<li>52 - t/m3 (плотность: т/м³)</li>
+			<li>35 - V (напряжение: В)</li>
+			<li>27 - W (электрическая мощность: Вт)</li>
+        </ul>
+    </li>
+    <li>name - человекопонятное название. </li>
+    <li>precision - точность отображения. Диапазон доступных значений:
+        <ul>
+            <li>0 - 0 знаков после точки.</li>
+            <li>1 - 1 знак после точки.</li>
+            <li>2 - 2 знака после точки.</li>
+            <li>3 - 3 знака после точки.</li>
+            <li>4 - 4 знака после точки.</li>
+            <li>5 - 5 знаков после точки.</li>
+        </ul>
+    </li>
+    <li>multiplier - множитель.</li>
+	<li>category - id категории параметров. Список категорий выдается в запросе информации о приборе.</li>
+	<li>bitmask_enabled - применяется ли битовая маска к параметру (0 - нет, 1 - да. Значение по умолчанию - 0)</li>
+	<li>bitmask_value - значение битовой маски (HEX). Строка с HEX представлением числа, например 7E00.</li>
+</ul>
+<h4>Запрос:</h4>
+<pre>POST /v1/modbus/edit-parameter/302241 HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer CYndQy1OwPtpal1OhrextgtIM7Bw5q3f
+Content-Length: 2
+Content-Type: application/x-www-form-urlencoded</pre>
+<pre>{
+	"read_function":"3",
+	"write_function":"16",
+	"address":"B",
+	"device_format":"1",
+	"register_least_byte_first":"0",
+	"least_register_first":"0",
+	"measure":"15",
+	"name":"regDOut",
+	"precision":"3",
+	"multiplier":"1.0000000",
+	"category":"178",
+	"bitmask_enabled":1,
+	"bitmask_value":"E0"
+}</pre>
+
+<h4>Ответ:</h4>
+<pre>{
+    "code": "success",
+    "description": "Modbus параметр (<b>regDOut</b>) был успешно изменён."
+}</pre>
+<br>
+<h4>Описание возвращаемых полей:</h4>
+<ul>
+    <li>code - код результата обработки запроса.</li>
+    <li>description - описание полученного результата.</li>
+</ul>		<h3>Удаление modbus параметра - POST modbus/delete-parameter/:id</h3>
+<p>Удаляет modbus параметр прибора по id параметра.</p>
+<p>Параметры запроса:</p>
+<ul>
+    <li>id параметра прибора передаётся в адресной строке.</li>
+</ul>
+<h4>Запрос:</h4>
+<pre>POST /v1/modbus/delete-parameter/306607 HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer CYndQy1OwPtpal1OhrextgtIM7Bw5q3f
+Content-Length: 2
+Content-Type: application/x-www-form-urlencoded</pre>
+<pre>{}</pre>
+
+<h4>Ответ:</h4>
+<pre>{
+    "code": "success",
+    "description": "The Modbus parameter (read2write15uint32) has been successfully deleted."
+}</pre>
+<br>
+<h4>Описание возвращаемых полей:</h4>
+<ul>
+    <li>code - код результата обработки запроса.</li>
+    <li>description - описание полученного результата.</li>
+</ul>		<h3><i>Группа запросов на управление категориями modbus параметров</i></h3>
+		<h3>Создание новой категории modbus параметров - POST modbus/create-parameter-category/</h3>
+<p>Создаёт новую категорию modbus параметров. Все параметры передаются в теле запроса.</p>
+<p>Параметры запроса:</p>
+<ul>
+	<li>device_id{*} - идентификатор прибора, для которого создаётся новая категория параметров</li>
+	<li>parent_id{*} - идентификатор родительской категории</li>
+	<li>name{*} - название новой категории. Максимальная длина - 64 символов. Если длина строки превышает указанный предел, в качестве имени
+		категории сохраняются первые 64 символа.</li>
+	<li>tag - тэг категории. Если не задан, присваивается значение по-умолчанию.</li>
+</ul>
+<h4>Запрос:</h4>
+<pre>POST /v1/modbus/create-parameter-category/ HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer CYndQy1OwPtpal1OhrextgtIM7Bw5q3f
+Content-Length: 2
+Content-Type: application/x-www-form-urlencoded</pre>
+<pre>{
+    "device_id": 43055,
+    "parent_id": 2482,
+    "name": "API category",
+    "tag": "api_tag"
+}</pre>
+
+<h4>Ответ:</h4>
+<pre>{
+    "category_id": 2774,
+    "code": "success",
+    "description": "Вы успешно создали новую категорию параметра (API category)"
+}</pre>
+<br>
+<h4>Описание возвращаемых полей:</h4>
+<ul>
+	<li>category_id - идентификатор новой категории параметров.</li>
+	<li>code - код ответа.</li>
+	<li>description - описание события.</li>
+</ul>		<h3>Удаление категории modbus параметров - POST modbus/delete-parameter-category/</h3>
+<p>Удаляет категорию modbus параметров. Категория должна относиться к device_id. Все modbus параметры, относящиеся к данной категории, также будут удалены. Все параметры запроса являются обязательными.</p>
+<p>Параметры запроса:</p>
+<ul>
+    <li>device_id - идентификатор устройства.</li>
+    <li>category_id - идентификатор категории.</li>
+</ul>
+<h4>Запрос:</h4>
+<pre>POST /v1/modbus/delete-parameter-category/ HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer CYndQy1OwPtpal1OhrextgtIM7Bw5q3f
+Content-Length: 2
+Content-Type: application/x-www-form-urlencoded</pre>
+<pre>{
+    "device_id": 43055,
+    "category_id": 2766
+}</pre>
+
+<h4>Ответ:</h4>
+<pre>{
+    "code": "success",
+    "description": "Вы успешно удалили категорию параметров (API category)"
+}</pre>
+<br>
+<h4>Описание возвращаемых полей:</h4>
+<ul>
+    <li>code - код результата обработки запроса.</li>
+    <li>description - описание полученного результата.</li>
+</ul>		<h3>Переименование категории modbus параметра - POST modbus/rename-parameter-category/</h3>
+<p>Позволяет задать новое название категории. Все параметры запроса обязательны для заполнения. Категория должна относиться к device_id.</p>
+<p>Параметры запроса:</p>
+<ul>
+	<li>device_id - id прибора, к которому относится категория параметров</li>
+	<li>category_id - id изменяемой категории</li>
+	<li>name - новое название категории. Максимальная длина - 64 символов. Если длина строки превышает указанный предел, в качестве имени
+		категории сохраняются первые 64 символа.</li>
+</ul>
+<h4>Запрос:</h4>
+<pre>POST /v1/modbus/rename-parameter-category/ HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer CYndQy1OwPtpal1OhrextgtIM7Bw5q3f
+Content-Length: 2
+Content-Type: application/x-www-form-urlencoded</pre>
+<pre>{
+    "device_id": 43055,
+    "category_id": 2763,
+    "name": "New category name"
+}</pre>
+
+<h4>Ответ:</h4>
+<pre>{
+    "name": "New category name",
+    "code": "success",
+    "description": "Вы успешно переименовали категорию параметров"
+}</pre>
+<br>
+<h4>Описание возвращаемых полей:</h4>
+<ul>
+	<li>name - новое имя категории параметров</li>
+	<li>code - код результата обработки запроса</li>
+    <li>description - описание полученного результата</li>
+</ul>		<h3>Перемещение modbus параметра между категориями - POST modbus/move-parameter/</h3>
+<p>Перемещает параметр с parameter_id из текущей категории в категорию с parent_id. Обязательное условие - параметр и
+категория должны относиться к device_id. Все параметры являются обязательными.</p>
+<p>Параметры запроса:</p>
+<ul>
+	<li>device_id - идентификатор устройства, к которому относятся категория параметров и параметр</li>
+	<li>parent_id - идентификатор категории, в которую перемещается параметр</li>
+	<li>parameter_id - идентификатор перемещаемого параметра</li>
+</ul>
+<h4>Запрос:</h4>
+<pre>POST /v1/modbus/move-parameter/ HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer CYndQy1OwPtpal1OhrextgtIM7Bw5q3f
+Content-Length: 2
+Content-Type: application/x-www-form-urlencoded</pre>
+<pre>{
+    "device_id": 43055,
+    "parent_id": 2482,
+    "parameter_id": 302815
+}</pre>
+
+<h4>Ответ:</h4>
+<pre>{
+    "code": "success",
+    "description": "Вы успешно перенесли modbus параметр (Изменить состояние дискретных выходов 1-8) в категорию (Все параметры)"
+}</pre>
+<br>
+<h4>Описание возвращаемых полей:</h4>
+<ul>
+    <li>code - код результата обработки запроса.</li>
+    <li>description - описание полученного результата.</li>
+</ul>		<h3>Перемещение категории в другую категорию - POST modbus/move-category/</h3>
+<p>Перемещает категорию с category_id из текущей категории в категорию с parent_id. При условии, что обе категории относятся к device_id и целевая категория
+	не является дочерней к перемещаемой категории. Все параметры являются обязательными.</p>
+<p>Параметры запроса:</p>
+<ul>
+	<li>device_id - идентификатор устройства, к которому относятся категория параметров</li>
+	<li>parent_id - идентификатор категории, в которую перемещается текущая категория</li>
+	<li>category_id - идентификатор перемещаемой категории</li>
+</ul>
+<h4>Запрос:</h4>
+<pre>POST /v1/modbus/move-category/ HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer CYndQy1OwPtpal1OhrextgtIM7Bw5q3f
+Content-Length: 2
+Content-Type: application/x-www-form-urlencoded</pre>
+<pre>{
+	"device_id": 43055,
+	"parent_id": 2482,
+	"category_id": 2771
+}</pre>
+
+<h4>Ответ:</h4>
+<pre>{
+    "code": "success",
+    "description": "Вы успешно перенесли категорию (API category) в категорию (Все параметры)"
+}</pre>
+<br>
+<h4>Описание возвращаемых полей:</h4>
+<ul>
+    <li>code - код результата обработки запроса.</li>
+    <li>description - описание полученного результата.</li>
+</ul>        <br><br><a class="btn btn-default" href="https://api.owencloud.ru/#contents">К содержанию</a>
+        <h2 id="parameter">Данные параметров</h2>
+		<h3>Получения последних данных с прибора - POST parameters/last-data</h3>
+		<p>Возвращает последние полученные данные по переданному списку параметров.
+			Для обновления актуальных значений в клиенте настоятельно рекомендуется
+			использовать именно этод метод.</p>
+		<h4>Запрос:</h4>
+		<pre>POST /v1/parameters/last-data HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer G78Fv1AfWN5JHirEVfAFnO1gAap3gKBR
+Content-Length: 25
+Content-Type: application/x-www-form-urlencoded</pre>
+		<pre>{"ids":[268191, 270292]}</pre>
+
+		<h4>Ответ:</h4>
+        <pre>            [
+                {
+                    "id": 268191,
+                    "values": [
+                        {
+                            "d": 1490344786,
+                            "v": 343,
+                            "e": 0,
+                            "f": "343 единиц измерения"
+                        }
+                    ]
+                },
+                {
+                    "id": 270292,
+                    "values": [
+                        {
+                            "d": 1490344787,
+                            "v": 106,
+                            "e": 0
+                            "f": "106 единиц измерения"
+                        }
+                    ]
+                }
+            ]
+        </pre>
+
+		<h4>Описание возвращаемых полей:</h4>
+		<p>Возвращается json-массив объектов с полями:
+            <br>id - идентификатор параметра
+            <br>values - массив с одним объектом.
+            <br>d - unix timestamp, когда было получено значение
+            <br>v - значение параметра
+            <br>e - код ошибки при чтении
+            <br>f - отформатированное значение (в т.ч. учитывается код ошибки)
+        </p>
+		
+		<h3>Получение данных с прибора — POST parameters/data</h3>
+		<p>Во входных параметрах передается список идентификаторов параметров, по 
+			которым требуется получить данные, а также дата и время начала требуемого 
+			отрезка, конца требуемого отрезка и шаг (если не нужны все данные).</p>
+		<p>Система может отказать в выдаче архива если параметров слишком много
+			или требуемый интервал слишком длинный. Такая ошибка возвращается как 
+			HTTP-код Bad Request.</p>
+		<h4>Запрос:</h4>
+		<pre>POST /v1/parameters/data HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer CYndQy1OwPtpal1OhrextgtIM7Bw5q3f
+Content-Length: 92
+Content-Type: application/x-www-form-urlencoded</pre>
+		<pre>{"ids":[268191, 270292],"start":"2016-07-08 00:00:00",
+"end":"2016-07-08 00:21:50","step":1}</pre>
+		<p>Даты начала и окончания можно передавать в следующих форматах:</p>
+		<ul>
+			<li>2016-07-08 00:00:00</li>
+			<li>2016-07-08 00:00:00GMT+3:00</li>
+			<li>2016-07-08 00:00:00GMT±0:00</li>
+		</ul>
+		<h4>Ответ:</h4>
+		<pre>[
+    {
+        "id": 268191,
+        "values": [
+            {
+                "d": 1486577073,
+                "v": 362,
+                "e": 0
+            },
+            {
+                "d": 1486577072,
+                "v": 362,
+                "e": 0
+            },
+            {
+                "d": 1486577068,
+                "v": 363,
+                "e": 0
+            }
+        ]
+    },
+    {
+        "id": 270292,
+        "values": [
+            {
+                "d": 1486969199,
+                "v": -37,
+                "e": 0
+            },
+            {
+                "d": 1486969196,
+                "v": -38,
+                "e": 0
+            },
+            {
+                "d": 1486969193,
+                "v": -39,
+                "e": 0
+            }
+        ]
+    }
+]
+        </pre>
+
+		<br>
+		<h4>Описание возвращаемых полей:</h4>
+        <p>Возвращается json-массив объектов с полями:
+            <br>id - идентификатор параметра
+            <br>values - массив с одним объектом.
+            <br>d - unix timestamp, когда было получено значение
+            <br>v - значение параметра (отформатировано как в вебе, может быть числом, строкой. сразу выводится нужная точность согласно единицам измерения, единицы измерения не выводятся)
+            <br>e - код ошибки при чтении (текстовое поле, пустая строка - ошибки нет, иначе может быть просто числом или "число: пояснение")
+        </p>
+		
+		<h3>Получение данных с прибора от заданного времени в будущее — POST parameters/forward-data</h3>
+		<p>Во входных параметрах передается список идентификаторов параметров, по 
+			которым требуется получить данные, а также дата и время начала требуемого 
+			отрезка, и максимальное количество возвращаемых записей.</p>
+		<p>В остальном запрос аналогичен запросу parameters/data.</p>
+		<h4>Запрос:</h4>
+		<pre>POST /v1/parameters/forward-data HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer M78uozW8QP40mBAZ6imjC-Dpo4X8LF4d
+Content-Length: 66
+Content-Type: application/x-www-form-urlencoded</pre>
+		<pre>{"ids":[110,109,112,111],"start":"2016-07-08 00:00:00","limit":10}</pre>
+		<p>Дату начала можно передавать в следующих форматах:</p>
+		<ul>
+			<li>2016-07-08 00:00:00</li>
+			<li>2016-07-08 00:00:00GMT+3:00</li>
+			<li>2016-07-08 00:00:00GMT±0:00</li>
+		</ul>
+		<h4>Ответ:</h4>
+		<p>Ответ и его формат аналогичны запросу parameters/data.</p>
+				
+		<h3>Получение данных с прибора от заданного времени в прошлое  — POST parameters/backward-data</h3>
+		<p>Во входных параметрах передается список идентификаторов параметров, по 
+			которым требуется получить данные, а также дата и время конца требуемого 
+			отрезка, и максимальное количество возвращаемых записей.</p>
+		<p>В остальном запрос аналогичен запросу parameters/data.</p>
+		<h4>Запрос:</h4>
+		<pre>POST /v1/parameters/backward-data HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer M78uozW8QP40mBAZ6imjC-Dpo4X8LF4d
+Content-Length: 66
+Content-Type: application/x-www-form-urlencoded</pre>
+		<pre>{"ids":[110,109,112,111],"start":"2016-07-08 00:00:00","limit":10}</pre>
+		<p>Дату начала можно передавать в следующих форматах:</p>
+		<ul>
+			<li>2016-07-08 00:00:00</li>
+			<li>2016-07-08 00:00:00GMT+3:00</li>
+			<li>2016-07-08 00:00:00GMT±0:00</li>
+		</ul>
+		<h4>Ответ:</h4>
+		<p>Ответ и его формат аналогичны запросу parameters/data.</p>
+				<br><br><a class="btn btn-default" href="https://api.owencloud.ru/#contents">К содержанию</a>
+		<h2 id="event-management">Управление событиями</h2>
+		<h3>Группировка событий по приборам - POST /event/group-by-device/</h3>
+<p>Группирует полученные из event_ids события по приборам. event_ids передаётся в теле запроса.</p>
+<p>Параметры запроса:</p>
+<ul>
+	<li>event_ids - список идентификторов событий.</li>
+</ul>
+<h4>Запрос:</h4>
+<pre>POST /v1/event/group-by-device/ HTTP/1.1
+Host: 127.0.0.1:82
+Accept: */*
+Authorization: Bearer B___YyWhEmz0S0EGVO3-lac_uzixr71q
+Content-Type: application/x-www-form-urlencoded</pre>
+<pre>{
+	"event_ids": [116397, 100386, 100388, 90219]
+}</pre>
+
+<h4>Ответ:</h4>
+<pre>{
+    "43539": [
+        100386,
+        100388,
+        90219
+    ],
+    "46703": [
+        116397
+    ]
+}</pre>
+<br>
+<h4>Описание возвращаемых полей:</h4>
+<pre>{
+    "deviceId1": [
+        eventId1,
+        eventId2,
+        eventId3
+    ],
+    "deviceId2": [
+        eventId4
+    ]
+}
+</pre>
+<ul>
+	<li>deviceId - идентификатор прибора.</li>
+	<li>eventId - идентификатор события.</li>
+</ul>
+		<h3>Получение категорий событий - POST event/categories-list</h3>
+<p>Возвращает список категорий системных событий. Формат выдачи — плоский.</p>
+<h4>Запрос:</h4>
+<pre>POST /v1/event/categories-list HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer Zfzno48MitEBLVBEOj5G_Kjdm1JME3PX
+Content-Type: application/x-www-form-urlencoded</pre>
+<pre>{}</pre>
+<h4>Ответ:</h4>
+<pre>[
+    {
+        "id":1,
+		"name":"Все события",
+		"parent_id":null,
+		"tag":"all"
+    },
+    {
+		"id":2,
+		"name":"Ошибки измерения",
+		"parent_id":1,
+		"tag":"all"
+    },
+	{
+		"id":3,
+		"name":"Ошибки датчиков",
+		"parent_id":1,
+		"tag":"all"
+	},
+	{
+		"id":4,
+		"name":"Ошибки конфигурирования",
+		"parent_id":1,
+		"tag":"all"
+	},
+	{
+		"id":5,
+		"name":"Ошибки измерения",
+		"parent_id":1,
+		"tag":"measuring_errors"
+	},
+	{
+		"id":6,
+		"name":"Ошибки датчиков",
+		"parent_id":1,
+		"tag":"sensor_errors"
+	},
+	{
+		"id":7,
+		"name":"Ошибки конфигурирования",
+		"parent_id":1,
+		"tag":"configuration_errors"
+	}
+]</pre>
+<h4>Описание возвращаемых полей:</h4>
+<ul>
+	<li>id - идентфикатор категории</li>
+	<li>parent_id - идентификатор категории-родителя</li>
+	<li>name - название категории</li>
+	<li>tag - тег категории (внутренний идентификатор)</li>
+</ul>		<h3>Получение списка событий компании - POST event/list</h3>
+<p>Получение списка событий, настроенных на приборах компании. Отличительная черта пользовательских событий - category_id = null.</p>
+<p>Параметры запроса:</p>
+<ul>
+    <li>company_id - идентификатор требуемой компании. Если не указан,
+        подразумевается идентификатор компании, к которой относится сам пользователь.</li>
+    <li>status - 0 или 1. Если передан 0,
+        будут возвращены только завершенные события, если 1 - только не завершенные.</li>
+    <li>is_critical - 0 или 1. Если передан 0, будут возвращены только
+        некритичные события, если 1 - только критичные.</li>
+    <li>is_active - 0 или 1. Если передан 0, будут возвращены только
+        неактивные события, если 1 - только активные.</li>
+</ul>
+<h4>Запрос:</h4>
+<pre>POST /v1/event/list HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer C_etshQbOB1nAzMQaxgNqjHDizvzvRyI
+Content-Type: application/x-www-form-urlencoded
+</pre>
+<pre>{
+	"status":0,
+	"is_critical":0,
+	"is_active":1
+}</pre>
+<h4>Ответ:</h4>
+<pre>[
+	{
+		"id": 90247,
+		"expression": "( 'Output' = 100 ) AND ( 'OutputWrite' = 100 )",
+		"condition_time": 0,
+		"device_id": 43055,
+		"is_active": 1,
+		"status": 0,
+		"type": 0,
+		"is_critical": 0,
+		"category_id": null,
+		"allow_change_activity": 1,
+		"last_update": 1514995924,
+		"uuid": null,
+		"is_old": 0,
+		"last_log_id": 539174,
+		"message": "Авария",
+		"is_system": 1,
+		"email_notification": "",
+		"sms_notification": ""
+	},
+	...
+]</pre>
+<h4>Описание возвращаемых полей:</h4>
+<p>Возвращается массив JSON-объектов, каждый из которых соответствует
+    одному настроенному событийному критерию и имеет следующие поля:</p>
+<ul>
+    <li>id - идентификатор критерия, уникален в системе.</li>
+    <li>expression - условное выражение, определяющее критерий. Для критериев
+        типа "не на связи" выражение будет null.</li>
+    <li>condition_time - время срабатывания критерия (в секундах). Критерий
+        срабатывает если условие верно в течение такого промежутка времени.</li>
+    <li>device_id - идентификатор прибора, на котором сработал критерий.
+        В данном запросе это поле не имеет смысла, однако этот же формат
+        используется несколькими другими запросами, в которых это поле
+        требуется.</li>
+    <li>is_active - активность критерия (0 - не активен, 1 - активен). Некоторые критерии могут быть отключены
+        пользователем, в таком случае система не будет их обрабатывать.</li>
+    <li>status - текущее состояние критерия (сработал или не сработал). При выполнении
+        условия в течение condition_time критерий переходит в состояние "сработал".</li>
+    <li>type - тип критерия. На текущий момент существует 2 типа: 0 - условное выражение
+        и 1 - прибор не на связи. В зависимости от типа изменяется механизм обработки
+        критерия системой.</li>
+    <li>is_critical - флаг аварийности критерия (настраивается в пользовательском интерфейсе).
+        0 - не аварийный, 1 - аварийный.</li>
+    <li>category_id - идентификатор категории, к которой относится критерий.</li>
+    <li>allow_change_activity - разрешено ли пользователю изменять активность этого
+        критерия. 0 - не разрешено, 1 - разрешено.</li>
+    <li>last_update - время последнего обновления данных по критерию (в формате
+        unix timestamp).</li>
+    <li>uuid - идентификатор критерия для импорта.</li>
+    <li>is_old - устарел ли этот критерий. Устаревают системные критерии, которые
+        по какой-то причине выводятся из эксплуатации.</li>
+    <li>last_log_id - идентификатор последней записи по этому критерию в
+        журнале событий.</li>
+    <li>email_notification - список настроенных email-адресов для уведомлений,
+        через запятую.</li>
+	<li>message - текст сообщения об ошибке.</li>
+	<li>is_system - является ли событие системным</li>
+    <li>sms_notification - список настроенных телефонных номеров для
+        sms-уведомлений, через запятую.</li>
+</ul>		<h3>Получение списка событий по приборам - POST event/list-by-device</h3>
+<p>Ответ содержит системные и пользовательские события приборов. Отличительная черта пользовательских событий - category_id = null.</p>
+<p>Параметры запроса:</p>
+<ul>
+	<li>device_ids - массив идентификаторов приборов. Если передан пустой массив в ответе будет пустой массив.
+	</li><li>status - 0 или 1. Если передан 0 будут возвращены только завершенные события, если 1 - только не завершенные.</li>
+	<li>is_critical - 0 или 1. Если передан 0, будут возвращены только некритичные события, если 1 - только критичные.</li>
+	<li>is_active - 0 или 1. Если передан 0, будут возвращены только неактивные события, если 1 - только активные.</li>
+</ul>
+<h4>Запрос:</h4>
+<pre>POST /v1/event/list-by-device HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer C_etshQbOB1nAzMQaxgNqjHDizvzvRyI
+Content-Type: application/x-www-form-urlencoded
+</pre>
+<pre>{
+	"device_ids": [45937, 20304, 43055],
+	"status":0,
+	"is_critical":0,
+	"is_active":1
+}</pre>
+<h4>Ответ:</h4>
+<pre>[
+	{
+		"id": 90247,
+		"expression": "( 'Output' = 100 ) AND ( 'OutputWrite' = 100 )",
+		"condition_time": 0,
+		"device_id": 43055,
+		"is_active": 1,
+		"status": 0,
+		"type": 0,
+		"is_critical": 0,
+		"category_id": null,
+		"allow_change_activity": 1,
+		"last_update": 1514995924,
+		"uuid": null,
+		"is_old": 0,
+		"last_log_id": 539174,
+		"message": "Авария",
+		"is_system": 1,
+		"email_notification": "user@email.com",
+		"sms_notification": ""
+	},
+	...
+]</pre>
+<h4>Описание возвращаемых полей:</h4>
+<ul>
+	<li>id - идентификатор критерия, уникален в системе.</li>
+	<li>expression - условное выражение, определяющее критерий. Для критериев
+		типа "не на связи" выражение будет null.</li>
+	<li>condition_time - время срабатывания критерия (в секундах). Критерий
+		срабатывает если условие верно в течение такого промежутка времени.</li>
+	<li>device_id - идентификатор прибора, на котором сработал критерий.
+		В данном запросе это поле не имеет смысла, однако этот же формат
+		используется несколькими другими запросами, в которых это поле
+		требуется.</li>
+	<li>is_active - активность критерия (0 - не активен, 1 - активен). Некоторые критерии могут быть отключены
+		пользователем, в таком случае система не будет их обрабатывать.</li>
+	<li>status - текущее состояние критерия (сработал или не сработал). При выполнении
+		условия в течение condition_time критерий переходит в состояние "сработал".</li>
+	<li>type - тип критерия. На текущий момент существует 2 типа: 0 - условное выражение
+		и 1 - прибор не на связи. В зависимости от типа изменяется механизм обработки
+		критерия системой.</li>
+	<li>is_critical - флаг аварийности критерия (настраивается в пользовательском интерфейсе).
+		0 - не аварийный, 1 - аварийный.</li>
+	<li>category_id - идентификатор категории, к которой относится критерий.</li>
+	<li>allow_change_activity - разрешено ли пользователю изменять активность этого
+		критерия. 0 - не разрешено, 1 - разрешено.</li>
+	<li>last_update - время последнего обновления данных по критерию (в формате
+		unix timestamp).</li>
+	<li>uuid - идентификатор критерия для импорта.</li>
+	<li>is_old - устарел ли этот критерий. Устаревают системные критерии, которые
+		по какой-то причине выводятся из эксплуатации.</li>
+	<li>last_log_id - идентификатор последней записи по этому критерию в
+		журнале событий.</li>
+	<li>email_notification - список настроенных email-адресов для уведомлений,
+		через запятую.</li>
+	<li>message - текст сообщения об ошибке.</li>
+	<li>is_system - является ли событие системным</li>
+	<li>sms_notification - список настроенных телефонных номеров для
+		sms-уведомлений, через запятую.</li>
+</ul>
+		<h3>Регистрация нового события - POST event/create</h3>
+<p>Получение списка событий, настроенных на приборах компании.
+</p>
+<p>Параметры запроса:</p>
+<ul>
+	<li>device_id{*} - идентификатор прибора, для которого создаётся новое событие.</li>
+	<li>message{*} - текст сообщения об ошибке.</li>
+	<li>expression{*} - условие выполнения события.</li>
+	<li>condition_time{*} - int, количество секунд ожидания до срабатывания события.</li>
+
+	<li>is_active - 0 - неактивно, 1 - активно.</li>
+	<li>is_critical - 0 - некритическое, 1 - критическое.</li>
+	<li>emails - массив со списком email-адресов, на которые будут отправлены уведомления о событии.</li>
+</ul>
+<small>{*} - поля, помеченные звёздочкой обязательны к заполнению</small>
+<h4>Запрос:</h4>
+<pre>POST /v1/event/create HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer C_etshQbOB1nAzMQaxgNqjHDizvzvRyI
+Content-Type: application/x-www-form-urlencoded
+</pre>
+<pre>{
+	"device_id": 42229,
+	"message": "Выход один превысил допустимое значение.",
+	"expression": "'out1' &gt;= 5",
+	"condition_time": 5,
+	"is_active": 1,
+	"is_critical": 0,
+	"emails": ["v.petrov@mail.ru", "i.vasilyev@inbox.ru"]
+}</pre>
+<h4>Ответ:</h4>
+<pre>{
+    "event_id": 123456,
+    "code": "success",
+    "message": "Событие (Выход один превысил допустимое значение.) было успешно создано."
+}</pre>
+<h4>Описание возвращаемых полей:</h4>
+<ul>
+	<li>event_id - идентификатор нового события.</li>
+	<li>code - статус запроса.</li>
+	<li>message - описание статуса запроса.</li>
+</ul>		<h3>Изменение события - POST event/edit/:id</h3>
+<p>Позволяет изменять системные и пользовательские события.</p>
+<p>Параметры запроса для изменения пользовательских событий:</p>
+<ul>
+	<li>id{*} - идентификатор события. Передаётся в адресной строке</li>
+	<li>message{*} - текст сообщения об ошибке.</li>
+	<li>expression{*} - условие выполнения события.</li>
+	<li>condition_time{*} - int, количество секунд ожидания до срабатывания события.</li>
+
+	<li>is_active - 0 - неактивно, 1 - активно.</li>
+	<li>is_critical - 0 - некритическое, 1 - критическое.</li>
+	<li>emails - массив со списком email-адресов, на которые будут отправлены уведомления о событии.</li>
+</ul>
+<p>Параметры запроса для изменения системных событий:</p>
+<ul>
+	<li>is_active - 0 - неактивно, 1 - активно.</li>
+	<li>is_critical - 0 - некритическое, 1 - критическое.</li>
+	<li>emails - список email-адресов, на которые будут отправлены уведомления о событии.</li>
+</ul>
+<p>События могут быть неотключаемыми, в таком случае поле is_active будет проигнорировано.
+Для выяснения доступности отключения события можно использовать поле "allow_change_activity"
+из запроса event/list</p>
+<small>{*} - поля, помеченные звёздочкой обязательны к заполнению</small>
+<h4>Запрос:</h4>
+<pre>POST /v1/event/edit/116389 HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer C_etshQbOB1nAzMQaxgNqjHDizvzvRyI
+Content-Type: application/x-www-form-urlencoded
+</pre>
+<pre>{
+	"device_id": 42229,
+	"message": "Выход один превысил допустимое значение.",
+	"expression": "'out1' &gt;= 10",
+	"condition_time": 1,
+	"is_active": 1,
+	"is_critical": 1,
+	"emails": ["v.petrov@mail.ru"]
+}</pre>
+<h4>Ответ:</h4>
+<pre>{
+    "code": "success",
+    "message": "Событие (Выход один превысил допустимое значение.) было успешно изменено."
+}</pre>
+<h4>Описание возвращаемых полей:</h4>
+<ul>
+	<li>code - статус запроса.</li>
+	<li>message - описание статуса запроса.</li>
+</ul>		<h3>Удаление события - POST event/delete/:id</h3>
+<p>Удаляет событие по идентификатору. Удалять можно только пользовательские события.</p>
+<p>Параметры запроса:</p>
+<ul>
+    <li>id - идентификатор события, передаётся в адресной строке.</li>
+</ul>
+<h4>Запрос:</h4>
+<pre>POST /v1/event/delete/116389 HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer CYndQy1OwPtpal1OhrextgtIM7Bw5q3f
+Content-Type: application/x-www-form-urlencoded</pre>
+<pre>{}</pre>
+
+<h4>Ответ:</h4>
+<pre>{
+    "code": "success",
+    "description": "Событие ("Выход один превысил допустимое значение.") было успешно удалено."
+}</pre>
+<br>
+<h4>Описание возвращаемых полей:</h4>
+<ul>
+    <li>code - статус запроса.</li>
+    <li>description - описание статуса запроса.</li>
+</ul>		<br><br><a class="btn btn-default" href="https://api.owencloud.ru/#contents">К содержанию</a>
+		<h2 id="parameter-write">Запись данных в параметры приборов</h2>
+		<h3>Запрос на запись параметров прибора — POST parameters/write-data</h3>
+<p>Во входных параметрах передаются id записываемых параметров и желаемые новые значения. 
+	Указывается время жизни запроса на запись (timeout) и флаг синхронизации значений парметров перед записью (sync = true/false).
+	Кроме того, если у компании активировано подтверждение действий по СМС, то передается
+	sms_tag СМС отправки и код подтверждения (sms_code).</p>
+<p>Система может отказать записи параметров если допущена какая-либо ошибка. В ответ будет возвращена
+	одна строка с ошибкой (например код подтверждения не верен).
+	В случае корректных данных будет возвращена информация о запросе на запись.</p>
+<h4>Корректный запрос:</h4>
+<pre>POST /v1/parameters/write-data HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer CYndQy1OwPtpal1OhrextgtIM7Bw5q3f
+</pre>
+<pre>{
+	"sms_tag":"3ca1eed2efaa183d0f32fb68099ead8f",
+	"sms_code":"69353",
+	"timeout":60,
+	"sync":true,
+	"data":[
+		{"id":237,"value":"2,9999"},
+		{"id":239,"value":"99"}
+	]
+}</pre>
+<h4>Ответ:</h4>
+<pre>{
+	"writeGroupId":74,
+	"writeParams":[
+		{"paramId":237,"writeParamId":699},
+		{"paramId":239,"writeParamId":700}]
+}</pre>
+<br>
+<h4>Запрос с неверным значением параметра:</h4>
+<pre>{
+	"sms_tag":"3ca1eed2efaa183d0f32fb68099ead8f",
+	"sms_code":"69353",
+	"timeout":60,
+	"sync":true,
+	"data":[
+		{"id":237,"value":"2.9"},
+		{"id":239,"value":"-100"}
+	]
+}</pre>
+<h4>Ответ:</h4>
+<pre>{
+	'status' =&gt; 'error',
+	'paramId' = &gt; 239,
+	'code' =&gt; 'invalid_value',
+	'message' =&gt; 'Новое значение параметра id = 239 не корректно'
+}</pre>
+<p>В приведённом выше формате приходит большая часть сообщений об ошибках. Описание полей:</p>
+<ul>
+	<li>status - статус запроса. Единственное возможное значение - 'error',</li>
+	<li>paramId - Id параметра. Опциональное поле; отправляется, если ошибка относится к конкретному параметру</li>
+	<li>code - код ошибки. Возможные значения:
+		<ul>
+			<li>wrong_sms_tag - SMS с указанным тэгом не найдено,</li>
+			<li>expired_sms_code - код устарел или невалиден для данного пользователя,</li>
+			<li>wrong_sms_code - код неверен,</li>
+			<li>parameter_not_writable - не записываемый параметр,</li>
+			<li>invalid_value - некорректное значение параметра,</li>
+			<li>can_not_write - ошибка применения изменений.</li>
+		</ul>
+	</li>
+	<li>message - текстовое описание ошибки.</li>
+</ul>
+<h4>Когда отключено смс-подтверждение операций:</h4>
+<pre>{
+	"sms_tag":"",
+	"sms_code":"",
+	"timeout":60,
+	"sync":false,
+	"data":[
+		{"id":237,"value":"1"},
+		{"id":239,"value":"2"}
+	]
+}</pre>
+<h4>Ответ:</h4>
+<pre>{
+	"writeGroupId":75,
+	"writeParams":[
+		{"paramId":237,"writeParamId":701},
+		{"paramId":239,"writeParamId":702}
+	]
+}</pre>
+<h4>Описание возвращаемых полей:</h4>
+<p>Возвращается одна строка с текстом ошибки или список полей:</p>
+<ul>
+	<li>writeGroupId - идентификатор группы запросов на запись</li>
+	<li>writeParams - список подзапросов на запись для каждого параметра:
+		<ul>
+			<li>paramId - идентификатор параметра</li>
+			<li>writeParamId - идентификатор запроса на запись конкретного параметра</li>
+		</ul>
+	</li>
+</ul>
+		<h3>Запрос на отмену процесса записи параметров — POST parameters/write-cancel</h3>
+<p>Во входных параметрах передаются id группы запросов на запись и (или) id самих запросов на запись</p>
+<p>Все еще не обработанные отдельные запросы на запись и запросы, входящую в группу запросов на запись, будут отменены. </p>
+
+<h4>Запрос:</h4>
+<pre>POST /v1/parameters/write-cancel HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer CYndQy1OwPtpal1OhrextgtIM7Bw5q3f
+</pre>
+
+<pre>{"writeGroupIds":[77],"writeParamIds":[709,710,711,712]}</pre>
+<h4>Ответ:</h4>
+<pre>[{"writeParamId":709,"in_progress":false,"status":"Отменена"},
+{"writeParamId":710,"in_progress":false,"status":"Отменена"},
+{"writeParamId":711,"in_progress":false,"status":"Отменена"},
+{"writeParamId":712,"in_progress":false,"status":"Отменена"}]</pre>
+
+<br>
+<h4>Описание возвращаемых полей:</h4>
+<p>Возвращается список записей по каждому отдельному запросу на запись (будь то он составляющем группы на запись или явно указанным):
+	<br>writeParamId - идентификатор запроса на запись
+	<br>in_progress - является ли запрос на запись еще не завершенным (в обработке или выполняется)
+	<br>status - словесное описание статуса запроса на запись (т.е. команды на запись - термин веб интферйса)
+</p>
+		<h3>Запрос статусу комманд на запись параметров — POST parameters/write-status</h3>
+<p>Во входных параметрах передаются id группы запросов на запись и (или) id самих запросов на запись</p>
+<p>Будут выведены все запросы на запись, входящую в группу запросов и все отдельные запросы</p>
+
+<h4>Запрос:</h4>
+<pre>POST /v1/parameters/write-status HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer CYndQy1OwPtpal1OhrextgtIM7Bw5q3f
+</pre>
+
+<pre>{"writeGroupIds":[77],"writeParamIds":[713,714,715,716]}</pre>
+<h4>Ответ:</h4>
+<pre>[{"writeParamId":709,"in_progress":false,"status":"Отменена"},
+{"writeParamId":710,"in_progress":false,"status":"Отменена"},
+{"writeParamId":711,"in_progress":false,"status":"Отменена"},
+{"writeParamId":712,"in_progress":false,"status":"Отменена"},
+{"writeParamId":713,"in_progress":false,"status":"Выполнено"},
+{"writeParamId":714,"in_progress":true,"status":"В обработке"},
+{"writeParamId":715,"in_progress":true,"status":"В обработке"},
+{"writeParamId":716,"in_progress":true,"status":"В обработке"}]</pre>
+
+<br>
+<h4>Описание возвращаемых полей:</h4>
+<p>Возвращается список записей по каждому отдельному запросу на запись (будь то он составляющем группы на запись или явно указанным):
+	<br>writeParamId - идентификатор запроса на запись
+	<br>in_progress - является ли запрос на запись еще не завершенным (в обработке или выполняется)
+	<br>status - словесное описание статуса запроса на запись (т.е. команды на запись - термин веб интферйса)
+</p>
+        <br><br><a class="btn btn-default" href="https://api.owencloud.ru/#contents">К содержанию</a>
+        <h2 id="device-write-log">Логи запросов на запись</h2>
+		<h3>Получение лога запросов (команд) на запись на приборе POST device/write-log/:id</h3>
+<p>Выдаёт сгруппированную историю запросов на запись по прибору (id) c некоторой даты (start)
+	по некоторую дату (end). 
+	<br>Упорядочено по убыванию даты создания группы запросов.
+	<br>Можно задать фильтр способа создания группы запросов на запись.
+	За это отвечает необязательный целочисленный параметр <b>creation</b>.
+</p><ul>
+	<li>Если нулевой бит параметра creation включён, то будут отображены записи, созданные через запись управляемых параметров.</li>
+	<li>Если первый бит параметра creation включён, то будут отображены записи, созданные при запуске шаблона на запись.</li>
+	<li>Если второй бит параметра creation включён, то будут отображены записи, созданные через запись конфигурационных параметров.</li>
+	<li>Если параметр creation не указан или не включён нулевой или первый или второй биты, то будут отображены только записи, созданные через запись управляемых параметров.</li>	
+</ul>
+<i>Битовая маска creation "1" = 001 (порядок: второй, первый, нулевой бит), включен нулевой бит, выдаем в ответ только записи с пометкой "interface: 0".<br>
+Битовая маcка  creation "2" = 010, включен первый бит, выдаем в ответ только записи созданные при запуске шаблона на запись с пометкой "interface 1".<br>
+Можно указать, например, creation "7" (111) или creation "3" (011) для одновременного возврата записей с разным методами "создания".<br>
+</i>
+<p></p>
+<p>Даты начала и окончания можно передавать в следующих форматах:</p>
+<ul>
+	<li>2016-12-12 00:00:00</li>
+	<li>2016-12-12 00:00:00GMT+3:00</li>
+	<li>2016-12-12 00:00:00GMT±0:00</li>
+</ul>
+
+<h4>Запрос:</h4>
+<pre>POST /v1/device/write-log/8 HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer C_etshQbOB1nAzMQaxgNqjHDizvzvRyI
+Content-Length: 59
+Content-Type: application/x-www-form-urlencoded</pre>
+<pre>{
+"start":"2017-08-15 00:00:00",
+"end":"2017-10-15 23:59:59"
+}</pre>
+<h4>Ответ:</h4>
+<pre>[
+{
+	"writeGroupId":85,
+	"user":"Admin Adminov (admin@owen.cloud)",
+	"sync":false,
+	"timeout":600,
+	"create_dt":1502806483,
+	"status":4,
+	"status_text":"Завершено по таймауту",
+	"interface":0,
+	"writeParams": [
+		{
+			"writeParamId":741,
+			"paramId":237,
+			"value_before":"335.00000000",
+			"value_after":"1.00000000",
+			"finished_dt":1502807134,
+			"status":5,
+			"status_text":"Завершенапо таймауту",
+			"error":null,
+			"error_text":""
+		},
+		{
+			"writeParamId":742,
+			"paramId":236,
+			"value_before":"122.0",
+			"value_after":"2.0",
+			"finished_dt":1502807134,
+			"status":4,
+			"status_text":"Отменена",
+			"error":null,
+			"error_text":""
+		},
+		{
+			"writeParamId":744,
+			"paramId":238,
+			"value_before":"",
+			"value_after":"4",
+			"finished_dt":1502807134,
+			"status":4,
+			"status_text":"Не выполнена",
+			"error":"33",
+			"error_text":"AFE. Аппаратная ошибка кадрирования"
+		}
+	]
+}
+]
+</pre>
+<pre>{
+"start":"2018-09-05 00:00:00",
+"end": "2018-09-17 23:59:59",
+"creation": 7
+}</pre>
+<h4>Ответ:</h4>
+<pre>[   
+{
+	"writeGroupId": 31247512,
+	"user":"Admin Adminov (admin@owen.cloud)",
+	"sync": false,
+	"timeout": 900,
+	"create_dt": 1536154398,
+	"status": 3,
+	"status_text": "Отменено",
+	"interface": 1,
+	"writeParams": [
+		{
+			"writeParamId": 32343474,
+			"paramId": 742888,
+			"value_before": "9657",
+			"value_after": "123",
+			"finished_dt": 1536154472,
+			"status": 6,
+			"status_text": "Отменена",
+			"error": null,
+			"error_text": ""
+		},
+		{
+			"writeParamId": 32343475,
+			"paramId": 742889,
+			"value_before": "99999999",
+			"value_after": "555",
+			"finished_dt": 1536154472,
+			"status": 6,
+			"status_text": "Отменена",
+			"error": null,
+			"error_text": ""
+		},
+		{
+			"writeParamId": 32343476,
+			"paramId": 742890,
+			"value_before": "-85634.586",
+			"value_after": "123456.000",
+			"finished_dt": 1536154472,
+			"status": 6,
+			"status_text": "Отменена",
+			"error": null,
+			"error_text": ""
+		}
+	]
+},  
+{
+	"writeGroupId": 31247510,
+	"user":"Admin Adminov (admin@owen.cloud)",
+	"sync": false,
+	"timeout": 600,
+	"create_dt": 1536153166,
+	"status": 0,
+	"status_text": "Выполнено",
+	"interface": 0,
+	"writeParams": [
+		{
+			"writeParamId": 32343472,
+			"paramId": 742888,
+			"value_before": "8181",
+			"value_after": "3333",
+			"finished_dt": 1536153166,
+			"status": 3,
+			"status_text": "Выполнена",
+			"error": null,
+			"error_text": ""
+		}
+	]
+},    
+{
+	"writeGroupId": 31247496,
+	"user":"Admin Adminov (admin@owen.cloud)",
+	"sync": false,
+	"timeout": 600,
+	"create_dt": 1536145661,
+	"status": 0,
+	"status_text": "Выполнено",
+	"interface": 2,
+	"writeParams": [
+		{
+			"writeParamId": 32343412,
+			"paramId": 742888,
+			"value_before": "3659",
+			"value_after": "11111",
+			"finished_dt": 1536145661,
+			"status": 3,
+			"status_text": "Выполнена",
+			"error": null,
+			"error_text": ""
+		}
+	]
+}
+]
+</pre>
+<h4>Описание возвращаемых полей:</h4>
+Возвращается список JSON-объектов, каждый из которых состоит из следующих 
+полей:
+<ul>
+	<li>writeGroupId - идентификатор группы запросов на запись</li>
+	<li>user - полное имя юзера и емейл того, кто осуществил запрос на запись</li>
+	<li>sync - флаг синхронизации значений параметров перед записью (true/false)</li>
+	<li>timeout - максимальная длительность ожидания записи (сек)</li>
+	<li>create_dt - время создания группы запросов на запись (в формате Unix timestamp)</li>
+	<li>status - цифровой статус характеризующий общую информацию о группе запросов на запись.
+		<br>Если какие-то запросы на запись из группы еще не окончены, будет значение null
+		<br>Возможные значения:
+		<ul>
+			<li>0 - группа запросов выполнена</li>
+			<li>1 - группа запросов частично выполнена</li>
+			<li>2 - группа запросов не выполнена</li>
+			<li>3 - группа запросов отменена</li>
+			<li>4 - группа запросов завершена по таймауту</li>
+		</ul>
+	</li>
+	<li>status_text - текстовый статус характеризующий общую информацию о группе запросов на запись.
+		<br>Если какие-то запросы на запись из группы еще не окончены, будет значение ''.</li>
+	<li>interface - способ создания группы запросов на запись.
+		<br>Возможные значения:
+		<ul>
+			<li>0 - просто запись управляемых параметров (через апи или интерфейс записи параметров прибора в вебе);</li>
+			<li>1 - часть запуска шаблона на запись;</li>
+			<li>2 - запись конфигурационных параметров из интерфейса управления конфигурациями.</li>
+		</ul></li>
+	<li>writeParams - JSON-массив, содержащий сами запросы (команды) на запись по каждому параметру со следующими полями:
+		<ul>
+			<li>writeParamId - идентификатор запроса на запись конкретного параметра</li>
+			<li>paramId - идентификатор параметра </li>
+			<li>value_before - значение до записи, отформатировано согласно настройкам параметра (может быть пустой строкой)</li>
+			<li>value_after - планируемое значение после записи, отформатировано согласно настройкам параметра </li>
+			<li>finished_dt - время завершения запроса на запись (в формате Unix timestamp)</li>
+			<li>status - цифровой статус характеризующий состояние запроса на запись.
+				<br>Возможные значения:
+				<ul>
+					<li>0 - запрос создан, ещё не подтверждён</li>
+					<li>1 - запрос в обработке</li>
+					<li>2 - запрос выполняется</li>
+					<li>3 - запрос выполнен</li>
+					<li>4 - запрос не выполнен</li>
+					<li>5 - запрос завершён по таймауту</li>
+					<li>6 - запрос отменён</li>
+					<li>7 - запрос не выполнен, т.к. отсутствует синхронизация</li>
+					<li>8 - запрос не выполнен, т.к. запись в прибор запрещена</li>
+				</ul>
+			</li>
+            <li>status_text - текстовый статус характеризующий состояние запроса на запись. В женском роде, трактуем как команда = статус</li>
+            <li>error - цифровое значение ошибки, полученное при неудаче запроса на запись (строка, может быть null) </li>
+            <li>error_text - текстовая расшифровка значения ошибки, если доступна</li>
+		</ul>
+	</li>
+</ul>
+
+		<h3>Получение лога активных запросов на запись на приборе POST device/write-log-active/:id</h3>
+<p>Выдаёт сгруппированную информацию обо всех активных группах запросов на запись (т.е. с незавершенными запросами) по прибору (id).
+	<br>Упорядочено по возрастанию даты создания группы запросов.
+	<br>Можно задать фильтр способа создания группы запросов на запись.
+	За это отвечает необязательный целочисленный параметр <b>creation</b> (аналогично запросу device/write-log/:id).
+</p>
+<h4>Запрос:</h4>
+<pre>POST /v1/device/write-log-active/8 HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer C_etshQbOB1nAzMQaxgNqjHDizvzvRyI
+Content-Length: 59
+Content-Type: application/x-www-form-urlencoded</pre>
+<pre>{}</pre>
+<h4>Ответ:</h4>
+<pre>[{"writeGroupId":85,"user":"Admin Adminov (admin@owen.cloud)","sync":false,
+"timeout":900,"create_dt":1502806483,"status":null,"status_text":"","interface":0,
+"writeParams":[
+{"writeParamId":745,"paramId":3011,"value_before":"","value_after":"1.000",
+"finished_dt":null,"status":1,"status_text":"В обработке","error":null,"error_text":""},
+{"writeParamId":746,"paramId":3016,"value_before":"","value_after":"2.000",
+"finished_dt":1507807908,"status":6,"status_text":"Отменена","error":null,"error_text":""},
+]}]</pre>
+<h4>Описание возвращаемых полей:</h4>
+Аналогично запросу device/write-log/:id
+
+
+		<h3>Получение лога запросов (команд) на запись на приборе по некоторую дату POST device/write-log-backward/:id</h3>
+<p>Выдаёт сгруппированную историю запросов на запись по прибору (id) по некоторую даты (end)
+	и лимитом записей (limit). Флаг (in_progress=true/false) регулирует выдачу активных групп запросов на запись или уже завершенных.
+	<br>Упорядочено по убыванию даты создания группы запросов.
+	<br>Можно задать фильтр способа создания группы запросов на запись.
+	За это отвечает необязательный целочисленный параметр <b>creation</b> (аналогично запросу device/write-log/:id).
+</p>
+<h4>Запрос:</h4>
+<pre>POST /v1/device/write-log-backward/8 HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer C_etshQbOB1nAzMQaxgNqjHDizvzvRyI
+Content-Length: 59
+Content-Type: application/x-www-form-urlencoded</pre>
+<pre>{"end":"2017-10-15 23:59:59","limit":10,"in_progress":false}</pre>
+<p>Дату окончания можно передавать в следующих форматах:</p>
+<ul>
+	<li>2016-12-12 00:00:00</li>
+	<li>2016-12-12 00:00:00GMT+3:00</li>
+	<li>2016-12-12 00:00:00GMT±0:00</li>
+</ul>
+<h4>Ответ:</h4>
+<pre>[...]</pre>
+<h4>Описание возвращаемых полей:</h4>
+Аналогично запросу device/write-log/:id		<h3>Получение лога запросов (команд) на запись на приборе с некоторой даты POST device/write-log-forward/:id</h3>
+<p>Выдаёт сгруппированную историю запросов на запись по прибору (id) c некоторой даты (start)
+	и лимитом записей (limit). Флаг (in_progress=true/false) регулирует выдачу активных групп запросов на запись или уже завершенных.
+	<br>Упорядочено по возрастанию даты создания группы запросов.
+	<br>Можно задать фильтр способа создания группы запросов на запись.
+	За это отвечает необязательный целочисленный параметр <b>creation</b> (аналогично запросу device/write-log/:id).
+</p>
+<h4>Запрос:</h4>
+<pre>POST /v1/device/write-log-forward/8 HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer C_etshQbOB1nAzMQaxgNqjHDizvzvRyI
+Content-Length: 59
+Content-Type: application/x-www-form-urlencoded</pre>
+<pre>{"start":"2017-08-15 00:00:00","limit":10,"in_progress":true}</pre>
+<p>Дату начала можно передавать в следующих форматах:</p>
+<ul>
+	<li>2016-12-12 00:00:00</li>
+	<li>2016-12-12 00:00:00GMT+3:00</li>
+	<li>2016-12-12 00:00:00GMT±0:00</li>
+</ul>
+<h4>Ответ:</h4>
+<pre>[...]</pre>
+<h4>Описание возвращаемых полей:</h4>
+Аналогично запросу device/write-log/:id
+        <br><br><a class="btn btn-default" href="https://api.owencloud.ru/#contents">К содержанию</a>
+        <h2 id="device-event">События приборов</h2>
+		<div class="deprecated">
+	<h3><span class="text-warning">УСТАРЕВШИЙ МЕТОД</span> Получение категорий событий POST event-category/index</h3>
+	<h4 class="text-warning">Замещающий метод: event/categories-list</h4>
+	<p>В ответе выдаётся список категорий событий, настроенный в системе. Формат выдачи — плоский.</p>
+	<h4>Запрос:</h4>
+	<pre>POST /v1/event-category/index HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer Zfzno48MitEBLVBEOj5G_Kjdm1JME3PX
+Content-Length: 2
+Content-Type: application/x-www-form-urlencoded</pre>
+	<pre>[]</pre>
+	<h4>Ответ:</h4>
+	<pre>[{"id":1,"name":"Все события","parent_id":null,"tag":"all"},{"id":2,"name":"Ошибки измерения","parent_id":1,"tag":"all"},{"id":3,"name":"Ошибки датчиков","parent_id":1,"tag":"all"},{"id":4,"name":"Ошибки конфигурирования","parent_id":1,"tag":"all"},{"id":5,"name":"Ошибки измерения","parent_id":1,"tag":"measuring_errors"},{"id":6,"name":"Ошибки датчиков","parent_id":1,"tag":"sensor_errors"},{"id":7,"name":"Ошибки конфигурирования","parent_id":1,"tag":"configuration_errors"}]</pre>
+
+	<h4>Описание возвращаемых полей:</h4>
+	<ul>
+		<li>id - id категории</li>
+		<li>parent_id - id категории-родителя</li>
+		<li>name - имя категории</li>
+		<li>tag - тег категории (внутренний идентификатор)</li>
+	</ul>
+</div>		<div class="deprecated">
+	<h3><span class="text-warning">УСТАРЕВШИЙ МЕТОД</span> Получение списка событий POST device/events-list/:id</h3>
+	<h4 class="text-warning">Замещающий метод: event/list-by-device</h4>
+	<p>Получение списка событий, настроенных на приборе.
+		В ответе система выдаёт все события, настроенные на приборе (как системные
+		так и пользовательские). Пользовательские события можно отличить по category_id равному
+		null. В запросе передаётся идентификатор прибора (полученный например из
+		запроса device/index.</p>
+	<p>В аргументах запроса можно передать следующие фильтры:
+	</p><ul>
+		<li>status - число 0 или 1. Если передан 0,
+			будут возвращены только завершенные события, если 1 - только не завершенные.</li>
+		<li>is_critical - также число 0 или 1. Если передан 0, будут возвращены только
+			некритичные события, если 1 - только критичные.</li>
+		<li>is_active - также число 0 или 1. Если передан 0, будут возвращены только
+			неактивные события, если 1 - только активные.</li>
+	</ul>
+	Если какой-то фильтр не указан, события соответственно не фильтруются по этому параметру.<p></p>
+	<h4>Запрос:</h4>
+	<pre>POST /v1/device/events-list/213 HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer C_etshQbOB1nAzMQaxgNqjHDizvzvRyI
+Content-Length: 2
+Content-Type: application/x-www-form-urlencoded
+</pre>
+	<pre>{"status":0,"is_critical":0,"is_active":1}</pre>
+	<h4>Ответ:</h4>
+	<pre>[    {
+        "id": 90247,
+        "expression": "( 'Output' = 100 ) AND ( 'OutputWrite' = 100 )",
+        "condition_time": 0,
+        "device_id": 43055,
+        "is_active": 1,
+        "status": 0,
+        "type": 0,
+        "is_critical": 0,
+        "category_id": null,
+        "allow_change_activity": 1,
+        "last_update": 1514995924,
+        "uuid": null,
+        "is_old": 0,
+        "last_log_id": 539174,
+        "message": "Авария",
+		"is_system": 1,
+        "email_notification": "user@email.com",
+        "sms_notification": ""
+    },]</pre>
+	<h4>Описание возвращаемых полей:</h4>
+	<p>Возвращается массив JSON-объектов, каждый из которых соответствует
+		одному настроенному событийному критерию и имеет следующие поля:</p>
+	<ul>
+		<li>id - идентификатор критерия, уникален в системе.</li>
+		<li>expression - условное выражение, определяющее критерий. Для критериев
+			типа "не на связи" выражение будет null.</li>
+		<li>condition_time - время срабатывания критерия (в секундах). Критерий
+			срабатывает если условие верно в течение такого промежутка времени.</li>
+		<li>device_id - идентификатор прибора, на котором сработал критерий.
+			В данном запросе это поле не имеет смысла, однако этот же формат
+			используется несколькими другими запросами, в которых это поле
+			требуется.</li>
+		<li>is_active - активность критерия (0 - не активен, 1 - активен). Некоторые критерии могут быть отключены
+			пользователем, в таком случае система не будет их обрабатывать.</li>
+		<li>status - текущее состояние критерия (сработал или не сработал). При выполнении
+			условия в течение condition_time критерий переходит в состояние "сработал".</li>
+		<li>type - тип критерия. На текущий момент существует 2 типа: 0 - условное выражение
+			и 1 - прибор не на связи. В зависимости от типа изменяется механизм обработки
+			критерия системой.</li>
+		<li>is_critical - флаг аварийности критерия (настраивается в пользовательском интерфейсе).
+			0 - не аварийный, 1 - аварийный.</li>
+		<li>category_id - идентификатор категории, к которой относится критерий.</li>
+		<li>allow_change_activity - разрешено ли пользователю изменять активность этого
+			критерия. 0 - не разрешено, 1 - разрешено.</li>
+		<li>last_update - время последнего обновления данных по критерию (в формате
+			unix timestamp).</li>
+		<li>uuid - идентификатор критерия для импорта.</li>
+		<li>is_old - устарел ли этот критерий. Устаревают системные критерии, которые
+			по какой-то причине выводятся из эксплуатации.</li>
+		<li>last_log_id - идентификатор последней записи по этому критерию в
+			журнале событий.</li>
+		<li>message - текст сообщения об ошибке.</li>
+		<li>is_system - является ли событие системным</li>
+		<li>email_notification - список настроенных email-адресов для уведомлений,
+			через запятую.</li>
+		<li>sms_notification - список настроенных телефонных номеров для
+			sms-уведомлений, через запятую.</li>
+	</ul>
+</div>		
+<h3>Получение истории событий POST device/events-log/:id</h3>
+<p>Выдаёт историю сработавших событий на приборе. В запросе
+	требуется также передать начальный и конечный моменты времени за которые
+	интересует список событий.</p>
+<p>Также в запросе можно передавать следующие фильтры:
+</p><ul>
+	<li>is_read - число 0 или 1. Если передать 0, будут выведены только
+		непрочитанные события. Если передать 1 - только прочитанные.</li>
+	<li>event_ids - массив из чисел - идентификаторов событийных критериев,
+		по которым требуются записи в журнале.</li><li>
+</li></ul>
+<p></p>
+<h4>Запрос:</h4>
+<pre>POST /v1/device/events-log/213 HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer C_etshQbOB1nAzMQaxgNqjHDizvzvRyI
+Content-Length: 59
+Content-Type: application/x-www-form-urlencoded</pre>
+<pre>{"start":"2016-12-12 00:00:00","end":"2016-12-14 00:07:56"}</pre>
+<p>Даты начала и окончания можно передавать в следующих форматах:</p>
+<ul>
+	<li>2016-12-12 00:00:00</li>
+	<li>2016-12-12 00:00:00GMT+3:00</li>
+	<li>2016-12-12 00:00:00GMT±0:00</li>
+</ul>
+<h4>Ответ:</h4>
+<pre>[{
+	"id":12725,
+	"event_id":645,
+	"start_dt":1489343005,
+	"end_dt":1489343029,
+	"read_dt":null,"message":
+	"Прибор не на связи",
+	"data":[],
+	"device_id": 213,
+	"is_critical": 0,
+	"type": 1
+},
+{
+	"id":12724,
+	"event_id":1069,
+	"start_dt":1489342992,
+	"end_dt":1489343001,
+	"read_dt":null,
+	"message":"Прибор не на связи",
+	"data":[],
+	"device_id": 213,
+	"is_critical": 0,
+	"type": 1
+},
+{
+	"id":12723,
+	"event_id":645,
+	"start_dt":1489342990,
+	"end_dt":1489342995,
+	"read_dt":null,
+	"device_id":213,
+	"message":"Прибор не на связи",
+	"data":[],
+	"device_id": 213,
+	"is_critical": 0,
+	"type": 1
+},
+{
+	"id":12722,
+	"event_id":1,
+	"start_dt":1489342979,
+	"end_dt":1489342995,
+	"read_dt":null,
+	"device_id":213,
+	"message":"Превед",
+	"data":[{
+		"id":109,
+		"v":"730",
+		"f":0
+	}],
+	"device_id": 213,
+	"is_critical": 1,
+	"type": 0
+}]</pre>
+<h4>Описание возвращаемых полей:</h4>
+Возвращается список JSON-объектов, каждый из которых состоит из следующих 
+полей:
+<ul>
+	<li>id - идентификатор записи в журнале</li>
+	<li>event_id - идентификатор критерия (из запроса device/events-list).</li>
+	<li>start_dt - время начала (перехода критерия в состояние "сработал"),
+		в формате Unix tmestamp.</li>
+	<li>end_dt - время окончания (перехода критерия в состояние "не сработал"),
+		в формате Unix tmestamp. Если запись ещё не закрыта (критерий
+		ещё активен), это поле будет равно null.</li>
+	<li>read_dt - время прочтения пользователем (в формате Unix timestamp).
+		Если ещё не прочитано, будет null.</li>
+	<li>read_by_user - имя пользователя, прочитавшего запись
+		(строка, fullName пользователя). Поле появляется только если
+		запись прочитана.</li>
+	<li>message - сообщение аварийного критерия.</li>
+	<li>data - данные, которые привели к срабатыванию критерия.
+		Это JSON-массив, содержащий объекты со следующими полями:
+		<ul>
+			<li>id - идентификатор параметра.</li>
+			<li>v -значение параметра.</li>
+			<li>f - код ошибки параметра (строка или null).</li>
+		</ul>
+	</li>
+	<li>device_id - идентификатор прибора, на котором сработал критерий.
+		В данном запросе это поле не имеет смысла, однако этот же формат
+		используется несколькими другими запросами, в которых это поле
+		требуется.</li>
+	<li>is_critical - флаг аварийности события, к которому относится лог в данный момент: 0 - не аварийное событие, 1 - авария.</li>
+	<li>type - тип критерия. На текущий момент существует 2 типа: 0 - условное выражение
+		и 1 - прибор не на связи. В зависимости от типа изменяется механизм обработки
+		критерия системой.</li>
+</ul>
+		<h3>Получение истории событий начиная с некоторой даты POST device/events-log-forward/:id</h3>
+		<p>Запрос аналогичен запросу device/events-log, однако в качестве 
+		параметров передаются дата начала и количество выводимых событий.</p>
+		<p>Также в запросе можно передавать фильтры аналогичные фильтрам для
+			запроса device/events-log.</p>
+		<h4>Запрос:</h4>
+		<pre>POST /v1/device/events-log-forward/213 HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer C_etshQbOB1nAzMQaxgNqjHDizvzvRyI
+Content-Length: 59
+Content-Type: application/x-www-form-urlencoded</pre>
+		<pre>{"start":"2016-12-12 00:00:00","limit":"10"}</pre>
+		<p>Дату начала можно передавать в следующих форматах:</p>
+		<ul>
+			<li>2016-12-12 00:00:00</li>
+			<li>2016-12-12 00:00:00GMT+3:00</li>
+			<li>2016-12-12 00:00:00GMT±0:00</li>
+		</ul>
+		<h4>Ответ:</h4>
+		<p>Ответ и его формат аналогичны запросу device/events-log.</p>		<h3>Получение истории событий до некоторой даты POST device/events-log-backward/:id</h3>
+		<p>Запрос аналогичен запросу device/events-log, однако в качестве 
+		параметров передаются дата окончания и количество выводимых событий.</p>
+		<p>Также в запросе можно передавать фильтры аналогичные фильтрам для
+			запроса device/events-log.</p>
+		<h4>Запрос:</h4>
+		<pre>POST /v1/device/events-log-backward/213 HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer C_etshQbOB1nAzMQaxgNqjHDizvzvRyI
+Content-Length: 59
+Content-Type: application/x-www-form-urlencoded</pre>
+		<pre>{"end":"2016-12-12 00:00:00","limit":"10"}</pre>
+		<p>Дату окончания можно передавать в следующих форматах:</p>
+		<ul>
+			<li>2016-12-12 00:00:00</li>
+			<li>2016-12-12 00:00:00GMT+3:00</li>
+			<li>2016-12-12 00:00:00GMT±0:00</li>
+		</ul>
+		<h4>Ответ:</h4>
+		<p>Ответ и его формат аналогичны запросу device/events-log.</p>
+		
+				
+		<h3>Получение списка записей журнала сработавших событий - POST event-log/index</h3>
+		<p>Метод используется для получения конретных записей из журнала событий на приборе.
+		</p>
+		<p>В запросе передаются следующие поля:
+		</p><ul>
+			<li>
+				device_id (обязательное) - идентификатор прибора.
+			</li>
+			<li>
+				ids (необязательное) - массив чисел - идентификаторов интересующих
+				записей из журнала событий.
+			</li>
+			<li>
+				is_read (необязательное) - число 0 или 1. Если передан 0, будут выведены
+				только непрочитанные записи. Если передано 1, только прочитанные.
+			</li>
+		</ul>
+		<p></p>
+		<h4>Запрос:</h4>
+		<pre>POST /v1/event-log/index HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer B___YyWhEmz0S0EGVO3-lac_uzixr71q
+Content-Length: 659
+Content-Type: application/x-www-form-urlencoded</pre>
+		<pre>{"device_id":4,"ids":[23639,23638,23637,23636,23635,23634,23633,23631,
+23632,23630,23628,23629,23627,23626,23625,23624,23623,23622,23621,23620,23619,
+23618,23616,23617,23615,23614,23613,23612,23611,23610,23609,23608,23607,23606,
+23604,23605,23603,23602,23600,23599,23601,23598,23597,23596,23595,23594,23593,
+23592,23591,23590,23589,23588,23587,23586,23584,23585,23583,23582,23581,23580,
+23579,23577,23578,23576,23575,23574,23573,23572,23571,23570,23568,23569,23567,
+23566,23565,23564,23563,23560,23561,23562,23559,23558,23557,23556,23555,23554,
+23552,23553,23551,23550,23549,23548,23547,23546,23545,23544,23543,23542,23541,
+23539,23540,23538,23537,23536],"is_read":1}</pre>
+
+		<h4>Ответ:</h4>
+		<pre>[{"id":23536,"event_id":1069,"start_dt":1490292763,"end_dt":1490292859,
+"read_dt":1490645130,"read_by_user":"Adminov Admin","message":"Прибор не на связи",
+"data":[]},{"id":23537,"event_id":645,"start_dt":1490292764,"end_dt":1490292860,
+"read_dt":1490645129,"read_by_user":"Adminov Admin","message":"Прибор не на связи",
+"data":[]},{"id":23538,"event_id":4,"start_dt":1490292841,"end_dt":1490292858,
+"read_dt":1490645129,"read_by_user":"Adminov Admin","message":"offline boroda",
+"data":[]},{"id":23539,"event_id":2,"start_dt":1490292858,"end_dt":1490292922,
+"read_dt":1490645128,"read_by_user":"Adminov Admin","message":"Medved",
+"data":[{"id":109,"v":"886","f":0}]},{"id":23540,"event_id":1,
+"start_dt":1490292858,"end_dt":1490292874,"read_dt":1490645128,
+"read_by_user":"Adminov Admin","message":"Превед","data":[{"id":109,"v":"886",
+"f":0}]},{"id":23541,"event_id":1069,"start_dt":1490292870,"end_dt":1490292876,
+"read_dt":1490645128,"read_by_user":"Adminov Admin","message":"Прибор не на связи",
+"data":[]},{"id":23542,"event_id":645,"start_dt":1490292872,"end_dt":1490292875,
+"read_dt":1490645127,"read_by_user":"Adminov Admin","message":"Прибор не на связи",
+"data":[]}]</pre>
+		<p>Поля ответа аналогичны запросу device/events-log.
+		</p>		
+		<h3>Отметка записи в журнале событий как прочитанной - POST event-log/read/:id</h3>
+		<p>Метод используется для того, чтобы пометить запись в журнале 
+		сработавших событий как прочитанную. Запись отмечается прочитанной 
+		пользователем, от имени которого был получен токен для доступа к API.
+		</p>
+		<p>Идентификатор записи может быть получен из метода device/events-log или
+			аналогичных ему device/events-log-forward и device/events-log-backward.	</p>
+		<h4>Запрос:</h4>
+		<pre>POST /v1/event-log/read/23536 HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer 2jOJ1Li6xz4MhLvKHaZ6vfktMbygl6LR
+Content-Length: 2
+Content-Type: application/x-www-form-urlencoded</pre>
+		<pre>[]</pre>
+
+		<h4>Ответ:</h4>
+		<pre>""</pre>
+		<p>
+		В случае успеха возвращается пустая JSON-строка. В противном случае будет 
+		возвращен объект с описанием ошибки.</p>        <br><br><a class="btn btn-default" href="https://api.owencloud.ru/#contents">К содержанию</a>
+        <h2 id="company-event">События компаний</h2>
+		<div class="deprecated">
+	<h3><span class="text-warning">УСТАРЕВШИЙ МЕТОД</span> Получение списка событий компании POST company/events-list</h3>
+	<h4 class="text-warning">Замещающий метод: event/list</h4>
+	<p>Получение списка событий, настроенных на приборах компании.
+		Запрос в принципе аналогичен запросу device/events-list, за исключением
+		того, что выдаются все события, настроенные на приборах компании.
+		Cписок приборов компании в ответах ограничен правами доступа пользователя.
+	</p>
+	<p>В аргументах запроса можно передать следующие фильтры:
+	</p><ul>
+		<li>company_id - идентификатор требуемой компании. Если не указан,
+			подразумевается идентификатор компании, к которой относится сам пользователь.</li>
+		<li>status - число 0 или 1. Если передан 0,
+			будут возвращены только завершенные события, если 1 - только не завершенные.</li>
+		<li>is_critical - также число 0 или 1. Если передан 0, будут возвращены только
+			некритичные события, если 1 - только критичные.</li>
+		<li>is_active - также число 0 или 1. Если передан 0, будут возвращены только
+			неактивные события, если 1 - только активные.</li>
+	</ul>
+	Если какой-то фильтр не указан, события соответственно не фильтруются по этому параметру.<p></p>
+	<h4>Запрос:</h4>
+	<pre>POST /v1/company/events-list HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer C_etshQbOB1nAzMQaxgNqjHDizvzvRyI
+Content-Length: 2
+Content-Type: application/x-www-form-urlencoded
+</pre>
+	<pre>{"status":0,"is_critical":0,"is_active":1}</pre>
+	<h4>Ответ:</h4>
+	<pre>[{
+	"id": 90247,
+	"expression": "( 'Output' = 100 ) AND ( 'OutputWrite' = 100 )",
+	"condition_time": 0,
+	"device_id": 43055,
+	"is_active": 1,
+	"status": 0,
+	"type": 0,
+	"is_critical": 0,
+	"category_id": null,
+	"allow_change_activity": 1,
+	"last_update": 1514995924,
+	"uuid": null,
+	"is_old": 0,
+	"last_log_id": 539174,
+	"message": "Авария",
+	"is_system": 1,
+	"email_notification": "",
+	"sms_notification": ""
+}]</pre>
+	<h4>Описание возвращаемых полей:</h4>
+	Возвращаемый ответ идентичен запросу device/events-list.
+
+</div>		
+<h3>Получение истории событий на всех приборах компании POST company/events-log</h3>
+<p>Выдает историю активных (is_active = 1) в данный момент событий на приборах заданной компании.
+	Пользователь должен обладать правами на просмотр компании, в противном случае будет сгенерирована ошибка.
+	Cписок приборов компании в ответах ограничен правами доступа пользователя.</p>
+<p><b>Внимание! При большом числе приборов метод может быть очень медленным. Корме того может возращать большой объем данных!</b></p>
+<p>В запросе можно передавать следующие параметры:
+</p><ul>
+	<li>company_id - число, идентификатор требуемой компании. Если этот
+		параметр не передавать, будет использоваться та компания, к которой
+		относится запрашивающий пользователь.</li>
+	<li>event_log_ids - массив идентификаторов требуемых записей журнала</li>
+	<li>is_read - число 0 или 1. Если передать 0, будут выведены только
+		непрочитанные события. Если передать 1 - только прочитанные.</li>
+	<li>is_critical - число 0 или 1. Если передать 0, будут выведены только
+		простые события. Если передать 1 - только аварийные.</li>
+	<li>is_end - число 0 или 1. Если передать 0, будут выведены только
+		незавершившиеся события. Если передать 1 - только завершивиеся.</li>
+</ul>
+<p></p>
+<h4>Запрос:</h4>
+<pre>POST /v1/company/events-log HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer U359TzX_fRQ7CFI4CNX4U-gFJgSOSnZM
+Content-Length: 28
+Content-Type: application/x-www-form-urlencoded</pre>
+<pre>{"company_id":1,"is_read":0}</pre>
+<h4>Ответ:</h4>
+<pre>[{
+	"id": 405711,
+	"event_id": 84315,
+	"start_dt": 1508297280,
+	"end_dt": 1508297840,
+	"read_dt": null,
+	"message": "Прибор не на связи",
+	"data": [],
+	"device_id": 43055,
+	"is_critical": 0,
+	"type": 1
+},
+{
+	"id": 405992,
+	"event_id": 84315,
+	"start_dt": 1508400874,
+	"end_dt": 1508402030,
+	"read_dt": null,
+	"message": "Прибор не на связи",
+	"data": [],
+	"device_id": 43055,
+	"is_critical": 0,
+	"type": 1
+},
+{
+	"id": 410019,
+	"event_id": 90249,
+	"start_dt": 1509449924,
+	"end_dt": 1509450004,
+	"read_dt": null,
+	"message": "( 'Output' = 100 ) OR ( 'OutputWrite' = 100 )",
+	"data": [{
+			"id": 302815,
+			"v": "100.000",
+			"f": ""
+	}],
+	"device_id": 43055,
+	"is_critical": 0,
+	"type": 0
+}]</pre>
+<h4>Описание возвращаемых полей:</h4>
+Формат ответа аналогичен запросу device/events-log.		
+<h3>Получение числа аварий компании POST company/alarms-count</h3>
+<p>Получение числа аварий компании, которые сейчас сработавшие для выбранной компании.	
+	Cписок приборов компании, пораждающие аварии ограничен правами доступа пользователя.
+</p>
+<p>В аргументах запроса можно передать следующие фильтры:
+</p><ul>
+	<li>company_id - идентификатор требуемой компании. Если не указан,
+		подразумевается идентификатор компании, к которой относится сам пользователь.</li>	
+</ul>
+<p></p> 
+<h4>Запрос:</h4>
+<pre>POST /v1/company/alarms-count HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer C_etshQbOB1nAzMQaxgNqjHDizvzvRyI
+Content-Length: 2
+Content-Type: application/x-www-form-urlencoded
+</pre>
+<pre>{}</pre>
+<h4>Ответ:</h4>
+<pre>[3]</pre>
+<h4>Описание возвращаемых полей:</h4>
+Возвращается число.		<h3>Информация об ошибках по устройствам в компании - POST /v1/company/alarms-for/:companyId</h3>
+<p>Возвращает информацию об ошибках и статусах по устройствам, относящимся к компании с идентификатором companyId и доступных текущему пользователю.</p>
+<h4>Запрос:</h4>
+<pre>POST /v1/company/alarms-for/?companyId=3 HTTP/1.1
+	Host: api.owencloud.ru
+	Accept: */*
+	Authorization: Bearer CYndQy1OwPtpal1OhrextgtIM7Bw5q3f
+	Content-Length: 2
+	Content-Type: application/x-www-form-urlencoded
+</pre>
+<pre>[]</pre>
+
+<h4>Ответ:</h4>
+<pre>{
+	"43055": {
+	"d": 43055,
+	"i": "offline"
+	},
+	"46698": {
+	"d": 46698,
+	"i": "unreadalarm"
+	},
+	"46699": {
+	"d": 46699,
+	"i": "online"
+	},
+	"46700": {
+	"d": 46700,
+	"i": "offline"
+	},
+	"a": 0
+}</pre>
+<h4>Описание возвращаемых полей:</h4>
+<ul>
+	<li>id - индентификатор устройства (уникален в системе)
+		<ul>
+			<li>d - идентификатор устройства</li>
+			<li>i - код иконки состояния устройства</li>
+		</ul>
+	</li>
+	<li>a - общее количество ошибок по всем устройствам</li>
+</ul>		<br><br><a class="btn btn-default" href="https://api.owencloud.ru/#contents">К содержанию</a>
+		<h2 id="write-template">Шаблоны на запись</h2>
+		<h3>Вывод списка шаблонов на запись — POST write-template/list</h3>
+<p>Выводит список шаблонов на запись, доступных пользователю. Список может быть отфильтрован с помощью необязательных параметров 'filter' и 'category_id'.</p>
+<p>Параметры запроса:</p>
+<ul>
+	<li>filter - строка, по которой будут отобраны только те шаблоны, которые содержат указанную строку в названии
+	приборов или названии самого шаблона</li>
+	<li>category_id - идентификатор категории шаблонов на запись</li>
+</ul>
+<h4>Запрос:</h4>
+<pre>POST /v1/write-template/list HTTP/1.1
+Accept: */*
+Authorization: Bearer CYndQy1OwPtpal1OhrextgtIM7Bw5q3f
+Content-Length: 13
+Content-Type: application/x-www-form-urlencoded
+</pre>
+<br><pre>{"filter":"Шаблон", "category_id":""}</pre>
+<h4>Ответ:</h4>
+<pre>[
+    {
+        "id": 1,
+        "name": "Шаблон1",
+        "description": "Это описание шаблона1",
+        "sync": true,
+        "timeout": 123,
+        "update": 1518606689,
+        "last_run": null,
+        "is_favourite": true,
+        "categories": [
+            1537,
+            1767
+        ],
+        "is_empty": false,
+        "is_available": true,
+        "is_in_progress": false,
+        "writable_and_manageable_parameters_amount": 0
+    },
+    {
+        "id": 2,
+        "name": "Шаблон2",
+        "description": "Описание шаблона2",
+        "sync": true,
+        "timeout": 600,
+        "update": 1518606725,
+        "last_run": null,
+        "is_favourite": false,
+        "categories": [
+            113
+        ],
+        "is_empty": false,
+        "is_available": true,
+        "is_in_progress": true,
+        "writable_and_manageable_parameters_amount": 4
+    }
+]</pre>
+
+<h4>Описание возвращаемых полей:</h4>
+<ul>
+	<li>id - идентификатор шаблона на запись</li>
+	<li>name - название шаблона</li>
+	<li>description - описание шаблона</li>
+	<li>sync - записывать или нет новое значение в параметр при изменении данного значения в приборе</li>
+	<li>timeout - время, в течение которого выполнять попытки записи параметров (сек.)</li>
+	<li>update - временная метка последнего изменения настроек шаблона на запись</li>
+	<li>last_run - временная метка последнего запуска</li>
+	<li>is_favourite - шаблона на запись находится в списке избранных шаблонов</li>
+	<li>categories - массив идентификаторов категорий, к которым относится шаблон на запись</li>
+	<li>is_empty - наличие в шаблоне на запись хотя бы одного параметра</li>
+	<li>is_available - определяет доступность шаблона пользователю. Проверяет права пользователя на связанные приборы.</li>
+	<li>is_in_progress - находится ли шаблон на запись в процессе выполнения</li>
+	<li>writable_and_manageable_parameters_amount - количество управляемых и записываемых параметров шаблона</li>
+</ul>		<h3>Информация о шаблоне на запись - POST write-template/:id</h3>
+<p>Возвращает информацию о шаблоне на запись и список параметров с последними значениями.</p>
+<p>Параметры запроса:</p>
+<ul>
+	<li>id{*} - идентификатор шаблона на запись. Передаётся в адресной строке.</li>
+</ul>
+<small>{*} - поля, помеченные звёздочкой обязательны к заполнению</small>
+<h4>Запрос:</h4>
+<pre>POST /v1/write-template/1 HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer CYndQy1OwPtpal1OhrextgtIM7Bw5q3f
+Content-Length: 2
+Content-Type: application/x-www-form-urlencoded</pre>
+<pre>[]</pre>
+
+		<h4>Ответ:</h4>
+		<pre>{
+    "id": 1,
+    "name": "Шаблон1",
+    "description": "Это описание шаблона1",
+    "timeout": 123,
+    "update": 1518606689,
+    "last_execution_dt": 1518699625,
+    "sync": true,
+    "categories": [
+        1537,
+        1767
+    ],
+    "write_template_parameters": [
+        {
+            "id": 1,
+            "device_id": 12345,
+            "parameter_id": 331313,
+            "name": "Аварийное значение на ВЭ 6",
+            "device_name": "МУ110-6У_ПЕ210_Филипьев",
+            "new_value": "1.000",
+            "last_value": null,
+            "last_update_dt": null
+        },
+        {
+            "id": 4,
+            "device_id": 34567,
+            "parameter_id": 445508,
+            "name": "Уставка ЛУ 1",
+            "device_name": "ТРМ202-2-ПЕ210",
+            "new_value": "1.000",
+            "last_value": null,
+            "last_update_dt": null
+        },
+        {
+            "id": 5,
+            "device_id": 23456,
+            "parameter_id": 355831,
+            "name": "Коэффициент заполнения ШИМ 5",
+            "device_name": "cthulhu",
+            "new_value": "1.000",
+            "last_value": null,
+            "last_update_dt": null
+        }
+    ]
+}</pre>
+<h4>Описание возвращаемых полей:</h4>
+<ul>
+	<li>id - идентификатор шаблона на запись</li>
+	<li>name - название шаблона на запись</li>
+	<li>description - описание шаблона на запись</li>
+	<li>timeout - время, в течение которого выполнять попытки записи параметров (сек.)</li>
+	<li>update - временная метка последнего изменения настроек шаблона на запись</li>
+	<li>last_execution_dt - временная метка последнего выполнения шаблона на запись</li>
+	<li>sync - записывать или нет новое значение в параметр при изменении данного значения в приборе</li>
+	<li>categories - массив идентификаторов категорий, к которым относится шаблон на запись</li>
+	<li>write_template_parameters:
+		<ul>
+			<li>id - идентификатор параметра в шаблона на запись</li>
+			<li>device_id - идентификатор прибора</li>
+			<li>parameter_id - идентификатор параметра прибора</li>
+			<li>name - название параметра</li>
+			<li>device_name - название прибора</li>
+			<li>new_value - записываемое значение</li>
+			<li>last_value - последнее считанное значение параметра прибора</li>
+			<li>last_update_dt - временная метка считывания последнего значения</li>
+		</ul>
+	</li>
+</ul>		<h3>Получение лога запросов по шаблону на запись POST write-template/execution-log/:id</h3>
+<p>Выдаёт сгруппированную историю запросов на запись по идентификатору шаблона с даты "start"
+	по дату "end". Упорядочено по убыванию даты запуска шаблона на запись. Идентификатор шаблона
+	передаётся в адресной строке.
+</p>
+<p>Параметры запроса:</p>
+<ul>
+	<li>id{*} - идентификатор шаблона на запись. Передаётся в адресной строке</li>
+	<li>start{*} - дата и время начала диапазона</li>
+	<li>end{*} - дата и время окончания диапазона</li>
+</ul>
+<small>{*} - поля, помеченные звёздочкой обязательны к заполнению</small>
+<h4>Запрос:</h4>
+<pre>POST write-template/execution-log/12 HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer C_etshQbOB1nAzMQaxgNqjHDizvzvRyI
+Content-Length: 59
+Content-Type: application/x-www-form-urlencoded</pre>
+<pre>{"start":"01-01-2018 00:00:00","end": "30-02-2018 00:00:00"}</pre>
+<p>Даты начала и окончания можно передавать в следующих форматах:</p>
+<ul>
+	<li>2016-12-12 00:00:00</li>
+	<li>2016-12-12 00:00:00GMT+3:00</li>
+	<li>2016-12-12 00:00:00GMT±0:00</li>
+</ul>
+<h4>Ответ:</h4>
+<pre>[
+    {
+        "write_template_group_id": 15,
+        "user": "a.stulov a.stulov (a.stulov@owen.ru)",
+        "sync": true,
+        "timeout": 600,
+        "create_dt": 1518764479,
+        "status": 2,
+        "status_text": "Не выполнено",
+        "write_parameters": [
+            {
+                "write_request_id": 38201,
+                "parameter_id": 401961,
+                "device_id": 46890,
+                "value_before": "",
+                "value_after": "1",
+                "finished_dt": 1518764484,
+                "status": 6,
+                "status_text": "Отменена",
+                "error": null,
+                "error_text": ""
+            },
+            {
+                "write_request_id": 38202,
+                "parameter_id": 401963,
+                "device_id": 46891,
+                "value_before": "",
+                "value_after": "2.000",
+                "finished_dt": 1518764484,
+                "status": 6,
+                "status_text": "Отменена",
+                "error": null,
+                "error_text": ""
+            },
+            {
+                "write_request_id": 38203,
+                "parameter_id": 401965,
+                "device_id": 46892,
+                "value_before": "",
+                "value_after": "3.000",
+                "finished_dt": 1518764484,
+                "status": 6,
+                "status_text": "Отменена",
+                "error": null,
+                "error_text": ""
+            }
+        ]
+    }
+]</pre>
+<h4>Описание возвращаемых полей:</h4>
+<ul>
+	<li>write_template_group_id - идентификатор группы запросов на запись по шаблону</li>
+	<li>user -  - полное имя и почтовый адрес пользователя, который отправил шаблон на выполнение</li>
+	<li>sync - флаг синхронизации значений параметров перед записью (true/false)</li>
+	<li>timeout - максимальное время ожидания записи (сек)</li>
+	<li>create_dt - время создания группы запросов на запись по шаблону (в формате Unix timestamp)</li>
+	<li>status - цифровой статус характеризующий общую информацию о группе запросов на запись.
+		<br>Если какие-то запросы на запись из группы еще не окончены, будет значение null
+		<br>Возможные значения:
+		<ul>
+			<li>0 - группа запросов выполнена</li>
+			<li>1 - группа запросов выполнена частично</li>
+			<li>2 - группа запросов не выполнена</li>
+		</ul>
+	</li>
+	<li>status_text - текстовый статус характеризующий общую информацию о группе запросов на запись по шаблону.</li>
+	<li>write_parameters - JSON-массив, содержащий сами запросы (команды) на запись по каждому параметру со следующими полями:
+		<ul>
+			<li>write_request_id - идентификатор запроса на запись отдельного параметра</li>
+			<li>parameter_id - идентификатор параметра</li>
+			<li>device_id - идентификатор прибора, к которому относится параметр</li>
+			<li>value_before - значение до записи, отформатировано согласно настройкам параметра (может быть пустой строкой)</li>
+			<li>value_after - планируемое значение после записи, отформатировано согласно настройкам параметра </li>
+			<li>finished_dt - время завершения запроса на запись (в формате Unix timestamp)</li>
+			<li>status - цифровой статус характеризующий состояние запроса на запись.
+				<br>Возможные значения:
+				<ul>
+					<li>0 - запрос создан, ещё не подтверждён</li>
+					<li>1 - запрос в обработке</li>
+					<li>2 - запрос выполняется</li>
+					<li>3 - запрос выполнен</li>
+					<li>4 - запрос не выполнен</li>
+					<li>5 - запрос завершён по таймауту</li>
+					<li>6 - запрос отменён</li>
+					<li>7 - запрос не выполнен, т.к. отсутствует синхронизация</li>
+					<li>8 - запрос не выполнен, т.к. запись в прибор запрещена</li>
+				</ul>
+			</li>
+			<li>status_text - текстовый статус характеризующий состояние запроса на запись.</li>
+			<li>error - цифровое значение ошибки, полученное при неудаче запроса на запись (строка, может быть null) </li>
+			<li>error_text - текстовая расшифровка значения ошибки, если доступна</li>
+		</ul>
+	</li>
+</ul>
+
+		<h3>Получение лога активных запросов на запись по шаблону POST write-template/execution-log-active/:id</h3>
+<p>Выдаёт сгруппированную информацию об активной группе запросов на запись по идентификатору шаблона на запись.
+	Идентификатор шаблона передаётся в адресной строке.
+</p>
+<h4>Запрос:</h4>
+<pre>POST /v1/write-template/execution-log-active/8 HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer C_etshQbOB1nAzMQaxgNqjHDizvzvRyI
+Content-Length: 59
+Content-Type: application/x-www-form-urlencoded</pre>
+<pre>{}</pre>
+<h4>Ответ:</h4>
+<pre>{
+    "write_template_group_id": 16,
+    "user": "Wuasya Pupkin (w.pupkin@owen.ru)",
+    "sync": true,
+    "timeout": 600,
+    "create_dt": 1518767707,
+    "status": null,
+    "status_text": "",
+    "write_parameters": [
+        {
+            "write_request_id": 38204,
+            "parameter_id": 401961,
+            "device_id": 46890,
+            "value_before": "",
+            "value_after": "1",
+            "finished_dt": null,
+            "status": 1,
+            "status_text": "В обработке",
+            "error": null,
+            "error_text": ""
+        },
+        {
+            "write_request_id": 38205,
+            "parameter_id": 401963,
+            "device_id": 46891,
+            "value_before": "",
+            "value_after": "2.000",
+            "finished_dt": null,
+            "status": 1,
+            "status_text": "В обработке",
+            "error": null,
+            "error_text": ""
+        }
+    ]
+}</pre>
+<h4>Описание возвращаемых полей:</h4>
+Аналогично запросу write-template/execution-log/:id
+
+
+		<h3>Получение лога активных запросов на запись по всем шаблонам, доступным пользователю POST write-template/execution-log-active-all/</h3>
+<p>Выдаёт сгруппированную информацию об активной группе запросов на запись по всем доступным шаблонам пользователя внутри компании пользователя.
+</p>
+<h4>Запрос:</h4>
+<pre>POST /v1/write-template/execution-log-active-all/ HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer C_etshQbOB1nAzMQaxgNqjHDizvzvRyI
+Content-Length: 59
+Content-Type: application/x-www-form-urlencoded</pre>
+<pre>{}</pre>
+<h4>Ответ:</h4>
+<pre>[
+    {
+        "write_template_id": 48,
+        "write_template_group_id": 185,
+        "user": "a.stulov a.stulov (a.stulov@owen.ru)",
+        "sync": false,
+        "timeout": 900,
+        "create_dt": 1527498228,
+        "status": null,
+        "status_text": "",
+        "write_parameters": [
+            {
+                "write_request_id": 39253,
+                "parameter_id": 455501,
+                "device_id": 46890,
+                "value_before": "100",
+                "value_after": "3",
+                "finished_dt": null,
+                "status": 1,
+                "status_text": "В обработке",
+                "error": null,
+                "error_text": ""
+            },
+            {
+                "write_request_id": 39254,
+                "parameter_id": 455502,
+                "device_id": 46891,
+                "value_before": "-75.12300",
+                "value_after": "1.00000",
+                "finished_dt": null,
+                "status": 1,
+                "status_text": "В обработке",
+                "error": null,
+                "error_text": ""
+            },
+            {
+                "write_request_id": 39255,
+                "parameter_id": 455503,
+                "device_id": 46892,
+                "value_before": "0",
+                "value_after": "2",
+                "finished_dt": null,
+                "status": 1,
+                "status_text": "В обработке",
+                "error": null,
+                "error_text": ""
+            }
+        ]
+    },
+    {
+        "write_template_id": 50,
+        "write_template_group_id": 186,
+        "user": "a.stulov a.stulov (a.stulov@owen.ru)",
+        "sync": false,
+        "timeout": 900,
+        "create_dt": 1527498232,
+        "status": null,
+        "status_text": "",
+        "write_parameters": [
+            {
+                "write_request_id": 39257,
+                "parameter_id": 401961,
+                "device_id": 46890,
+                "value_before": "",
+                "value_after": "1",
+                "finished_dt": null,
+                "status": 1,
+                "status_text": "В обработке",
+                "error": null,
+                "error_text": ""
+            },
+            {
+                "write_request_id": 39256,
+                "parameter_id": 455164,
+                "device_id": 46891,
+                "value_before": "",
+                "value_after": "123.00",
+                "finished_dt": null,
+                "status": 1,
+                "status_text": "В обработке",
+                "error": null,
+                "error_text": ""
+            },
+            {
+                "write_request_id": 39258,
+                "parameter_id": 401963,
+                "device_id": 46892,
+                "value_before": "",
+                "value_after": "2.000",
+                "finished_dt": null,
+                "status": 1,
+                "status_text": "В обработке",
+                "error": null,
+                "error_text": ""
+            }
+        ]
+    }
+]</pre>
+<h4>Описание возвращаемых полей:</h4>
+<ul>
+	<li>write_template_id - идентификатор шаблона на запись</li>
+</ul>
+Остальные поля аналогичны запросу write-template/execution-log/:id
+
+
+		<h3>Получение лога запросов по шаблону на запись с заданной даты POST write-template/execution-log-forward/:id</h3>
+<p>Выдаёт сгруппированную историю запросов по идентификатору шаблона на запись, начиная с даты "start"
+	и с ограничением количества записей "limit". Флаг "in_progress" определяет вид возвращаемых запросов - активных или завершённых.
+	Упорядочено по возрастанию даты создания группы запросов.
+</p>
+<p>Параметры запроса:</p>
+<ul>
+	<li>id{*} - идентификатор шаблона на запись</li>
+	<li>start{*} - дата и время начала периода</li>
+	<li>limit{*} - количество запросов на запись</li>
+	<li>in_progress{*} - возвращать активные/завершённые запросы на запись</li>
+</ul>
+<small>{*} - поля, помеченные звёздочкой обязательны к заполнению</small>
+<h4>Запрос:</h4>
+<pre>POST write-template/execution-log-forward/12 HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer C_etshQbOB1nAzMQaxgNqjHDizvzvRyI
+Content-Length: 59
+Content-Type: application/x-www-form-urlencoded</pre>
+<pre>{"start":"15-02-2018 10:00:00","limit": 100, "in_progress":true}</pre>
+<p>Дату можно передавать в следующих форматах:</p>
+<ul>
+	<li>2016-12-12 00:00:00</li>
+	<li>2016-12-12 00:00:00GMT+3:00</li>
+	<li>2016-12-12 00:00:00GMT±0:00</li>
+</ul>
+<h4>Ответ:</h4>
+<pre>[
+    {
+        [
+    {
+        "write_template_group_id": 3,
+        "user": "a.stulov a.stulov (a.stulov@owen.ru)",
+        "sync": true,
+        "timeout": 600,
+        "create_dt": 1518684960,
+        "status": 2,
+        "status_text": "Не выполнено",
+        "write_parameters": [
+            {
+                "write_request_id": 38160,
+                "parameter_id": 401961,
+                "device_id": 46890,
+                "value_before": "",
+                "value_after": "1",
+                "finished_dt": 1518685570,
+                "status": 5,
+                "status_text": "Завершена по таймауту",
+                "error": null,
+                "error_text": ""
+            },
+            {
+                "write_parameter_id": 38161,
+                "parameter_id": 401963,
+                "device_id": 46891,
+                "value_before": "",
+                "value_after": "2.000",
+                "finished_dt": 1518685630,
+                "status": 5,
+                "status_text": "Завершена по таймауту",
+                "error": null,
+                "error_text": ""
+            }
+        ]
+    }
+]</pre>
+<h4>Описание возвращаемых полей:</h4>
+Аналогично запросу write-template/execution-log/:id
+		<h3>Получение лога запросов по шаблону на запись до заданной даты POST write-template/execution-log-backward/:id</h3>
+<p>Выдаёт сгруппированную историю запросов по идентификатору шаблона на запись, заканчивая датой "end"
+	и ограничением количества записей "limit". Флаг "in_progress" определяет вид возвращаемых запросов - активных или завершённых.
+	Упорядочено по убыванию даты создания группы запросов.
+</p>
+<p>Параметры запроса:</p>
+<ul>
+	<li>id{*} - идентификатор шаблона на запись</li>
+	<li>end{*} - дата и время окончания диапазона</li>
+	<li>limit{*} - количество запросов на запись</li>
+	<li>in_progress{*} - возвращает активные/завершённые запросы на запись</li>
+</ul>
+<small>{*} - поля, помеченные звёздочкой обязательны к заполнению</small>
+<h4>Запрос:</h4>
+<pre>POST write-template/execution-log-backward/12 HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer C_etshQbOB1nAzMQaxgNqjHDizvzvRyI
+Content-Length: 59
+Content-Type: application/x-www-form-urlencoded</pre>
+<pre>{"end":"15-02-2018 10:00:00","limit": 100, "in_progress":true}</pre>
+<p>Дату можно передавать в следующих форматах:</p>
+<ul>
+	<li>2016-12-12 00:00:00</li>
+	<li>2016-12-12 00:00:00GMT+3:00</li>
+	<li>2016-12-12 00:00:00GMT±0:00</li>
+</ul>
+<h4>Ответ:</h4>
+<pre>[
+    {
+        "write_template_group_id": 3,
+        "user": "a.stulov a.stulov (a.stulov@owen.ru)",
+        "sync": true,
+        "timeout": 600,
+        "create_dt": 1518684960,
+        "status": 2,
+        "status_text": "Не выполнено",
+        "write_parameters": [
+            {
+                "write_parameter_id": 38160,
+                "parameter_id": 401961,
+                "device_id": 46890,
+                "value_before": "",
+                "value_after": "1",
+                "finished_dt": 1518685570,
+                "status": 5,
+                "status_text": "Завершена по таймауту",
+                "error": null,
+                "error_text": ""
+            },
+            {
+                "write_parameter_id": 38161,
+                "parameter_id": 401963,
+                "device_id": 46891,
+                "value_before": "",
+                "value_after": "2.000",
+                "finished_dt": 1518685630,
+                "status": 5,
+                "status_text": "Завершена по таймауту",
+                "error": null,
+                "error_text": ""
+            },
+            {
+                "write_parameter_id": 38162,
+                "parameter_id": 401965,
+                "device_id": 46892,
+                "value_before": "",
+                "value_after": "3.000",
+                "finished_dt": 1518685690,
+                "status": 5,
+                "status_text": "Завершена по таймауту",
+                "error": null,
+                "error_text": ""
+            }
+        ]
+    }
+]</pre>
+<h4>Описание возвращаемых полей:</h4>
+Аналогично запросу write-template/execution-log/:id
+
+
+		<br><br><a class="btn btn-default" href="https://api.owencloud.ru/#contents">К содержанию</a>
+		<h2 id="write-template-management">Управление шаблонами на запись</h2>
+		<h3>Регистрация нового шаблона на запись - POST write-template-management/register</h3>
+<p>Регистрирует новый шаблона на запись в компании, к которой относится пользователь.</p>
+<p>Доступные значения для списка категорий возвращаются по запросу category/index.
+	Если оставить поле пустым, то прибор будет добавлен в одну из первых
+	досутпных категорий, в случае ограниченных прав на дерево. Или в корень дерева, в случае полных прав на дерево.</p>
+<p>timeout может принимать значения от 1 до предела, заданного в настройках системы(~100000).</p>
+<p>Параметры запроса:</p>
+<ul>
+	<li>name{*} - название шаблона на запись</li>
+	<li>sync_check{*} - не записывать при изменении значений в приборе в процессе записи</li>
+	<li>categories_list{*} - массив категорий шаблона на запись</li>
+	<li>description - описание шаблона на запись</li>
+	<li>timeout - повторять попытки в течение указанного периода (сек.)</li>
+</ul>
+<small>{*} - поля, помеченные звёздочкой обязательны к заполнению</small>
+<h4>Запрос:</h4>
+<pre>POST /v1/write-template-management/register HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer CYndQy1OwPtpal1OhrextgtIM7Bw5q3f
+Content-Type: application/x-www-form-urlencoded</pre>
+<pre>{
+	"name":"Шаблон на запись №1",
+	"sync_check":true,
+	"categories_list":[113,286],
+	"description":"Описание шаблона на запись №1",
+	"timeout":100
+}</pre>
+
+<h4>Ответ:</h4>
+<pre>{
+    "code": "success",
+    "description": "Вы успешно создали новый шаблон на запись",
+    "write_template_id": 10
+}</pre>
+<br>
+<h4>Описание возвращаемых полей:</h4>
+<ul>
+    <li>code - код события</li>
+    <li>description - описание события</li>
+	<li>write_template_id - идентификатор нового шаблона на запись</li>
+</ul>
+		<h3>Изменение шаблона на запись - POST write-template-management/edit/:id</h3>
+<p>Изменяет шаблон на запись по идентификатору.</p>
+<p>Доступные значения для списка категорий возвращаются по запросу category/index.
+	Если оставить поле пустым, то прибор будет добавлен в одну из первых
+	досутпных категорий, в случае ограниченных прав на дерево. Или в корень дерева, в случае полных прав на дерево.</p>
+<p>timeout может принимать значения от 1 до предела, заданного в настройках системы(~100000).</p>
+<p>Параметры запроса:</p>
+<ul>
+	<li>name{*} - название шаблона на запись</li>
+	<li>sync_check{*} - не записывать при изменении значений в приборе в процессе записи</li>
+	<li>categories_list{*} - массив категорий шаблона на запись</li>
+	<li>description - описание шаблона на запись</li>
+	<li>timeout - повторять попытки в течение указанного периода (сек.)</li>
+</ul>
+<small>{*} - поля, помеченные звёздочкой обязательны к заполнению</small>
+<h4>Запрос:</h4>
+<pre>POST /v1/write-template-management/edit/112 HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer CYndQy1OwPtpal1OhrextgtIM7Bw5q3f
+Content-Type: application/x-www-form-urlencoded</pre>
+<pre>{
+	"name":"Изменённый шаблон",
+	"sync_check":false,
+	"categories_list":[1537],
+	"description":"select * from write_templates;",
+	"timeout":1
+}</pre>
+<h4>Ответ:</h4>
+<pre>{
+    "code": "success",
+    "description": "Вы успешно изменили шаблон (Изменённый шаблон)"
+}</pre>
+<br>
+<h4>Описание возвращаемых полей:</h4>
+<ul>
+    <li>code - код события</li>
+    <li>description - описание события</li>
+</ul>		<h3>Удаление шаблона на запись - POST write-template-management/delete/:id</h3>
+<p>Удаляет шаблон на запись по идентификатору.</p>
+<p>Параметры запроса:</p>
+<ul>
+    <li>id - идентификатор удаляемого шаблона на запись. Передаётся в адресной строке</li>
+</ul>
+<h4>Запрос:</h4>
+<pre>POST /v1/write-template-management/delete/123 HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer CYndQy1OwPtpal1OhrextgtIM7Bw5q3f
+Content-Length: 2
+Content-Type: application/x-www-form-urlencoded</pre>
+<pre>{}</pre>
+
+<h4>Ответ:</h4>
+<pre>{
+    "code": "success",
+    "description": "Вы успешно удалили шаблон на запись (API template)"
+}</pre>
+<br>
+<h4>Описание возвращаемых полей:</h4>
+<ul>
+    <li>code - код события</li>
+    <li>description - описание события</li>
+</ul>		<h3>Выполнение шаблона на запись — POST write-template-management/execute/:id</h3>
+<p>Запускает запись параметров в прибор по шаблону. В адресной строке передаётся идентификатор выполняемого шаблона. В теле запроса
+	указываются время жизни запроса на запись "timeout", флаг синхронизации значений парметров перед записью "sync"
+	и список новых значений "data". Если не передать время жизни, флаг синхронизации или новые значения - они будут взяты из
+	настроек самого шаблона. </p>
+<p>Параметры и значения, не указанные в списке не будут записаны. Также как и параметры, для которых нет записи в списке параметров шаблона на запись.</p>
+<p>В случае, если для компании включены sms-подтвеждения отдельных действий, запрос принимает параметры sms_tag СМС отправки и код подтверждения (sms_code).
+	<strong>Функционал в разработке.</strong></p>
+<ul>
+	<li>id{*} - идентификатор выполняемого шаблона на запись. Передаётся в адресной строке</li>
+	<li>sms_tag - тэг sms-сообщения с кодом подтверждения</li>
+	<li>sms_code - код подтверждения из sms</li>
+	<li>timeout - время, в течение которого выполнять попытки записи параметров (сек.)</li>
+	<li>sync - записывать или нет новое значение в параметр при изменении данного значения в приборе</li>
+	<li>data - объект с парами "идентификатор параметра прибора" : "записываемое значение параметра"</li>
+</ul>
+<small>{*} - поля, помеченные звёздочкой обязательны к заполнению</small>
+<h4>Запрос:</h4>
+<pre>POST write-template-management/execute/1 HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer CYndQy1OwPtpal1OhrextgtIM7Bw5q3f
+</pre>
+<pre>{
+	"sms_tag":"3ca1eed2efaa183d0f32fb68099ead8f",
+	"sms_code":"69353",
+	"timeout":10,
+	"sync":true,
+	"data": {
+		{"id":401961,"value":"1"},
+		{"id":401963,"value":"2.000"}
+	}
+}</pre>
+<h4>Ответ:</h4>
+<pre>{
+    "code": "success",
+    "description": "Вы успешно запустили шаблон на запись"
+}</pre>
+<h4>Описание возвращаемых полей:</h4>
+<ul>
+	<li>code - код события</li>
+	<li>description - описание события</li>
+</ul>
+<h4>Запрос с неверным значением параметра:</h4>
+<pre>{
+	"sms_tag":"",
+	"sms_code":"",
+	"timeout":60,
+	"sync":true,
+	"data":[
+		{"id":401961,"value":"2"},
+		{"id":401963,"value":"-100"}
+	]
+}</pre>
+<h4>Ответ:</h4>
+<pre>{
+	'status' =&gt; 'error',
+	'paramId' = &gt; 401963,
+	'code' =&gt; 'invalid_value',
+	'message' =&gt; 'Новое значение параметра id = 401963 не корректно'
+}</pre>		<h3>Остановка выполнения шаблона на запись — POST write-template-management/stop/:id</h3>
+<p>Останавливает выполнение шаблона на запись. Запросы на запись, которые ещё не обработаны, будут отменены.
+Идентификатор шаблона передаётся в адресной строке.</p>
+<p>Для остановки отдельных запросов на запись:</p>
+<ul>
+	<li>Получите идентификаторы активных запросов на запись с помощью write-template/execution-log-active/:id</li>
+	<li>Для остановки запросов передайте их идентификаторы в parameters/write-cancel</li>
+</ul>
+<p>Параметры запроса:</p>
+<ul>
+	<li>id{*} - идентификатор шаблона на запись. Передаётся в адресной строке.</li>
+</ul>
+<small>{*} - поля, помеченные звёздочкой обязательны к заполнению</small>
+<h4>Запрос:</h4>
+<pre>POST write-template-management/stop/2 HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer CYndQy1OwPtpal1OhrextgtIM7Bw5q3f
+</pre>
+<pre>{}</pre>
+<h4>Ответ:</h4>
+<pre>{
+    "code": "success",
+    "description": "Вы успешно остановили шаблон на запись"
+}</pre>
+<br>
+<h4>Описание возвращаемых полей:</h4>
+<ul>
+	<li>code - код результата обработки запроса.</li>
+	<li>description - описание полученного результата.</li>
+</ul>		<h3>Добавление параметров в шаблон на запись - POST write-template-management/add-parameters/:id</h3>
+<p>Добавляет параметр в шаблон на запись по идентификатору шаблона. Принимает объект вида ключ=&gt;значение, в котором
+	ключём выступает идентификатор добавляемого параметра, а значением - записываемое значение параметра. В объекте
+	можно передать один или несколько параметров. Идентификатор шаблона передаётся в адресной строке. Объект параметров передаётся в теле запроса.</p>
+<p>Параметры запроса:</p>
+<ul>
+    <li>id - идентификатор шаблона на запись, которому добавляются новые параметры. Передаётся в адресной строке.</li>
+    <li>parameters - объект вида:<br>
+		[<br>
+		&nbsp;&nbsp;&nbsp;&nbsp;parameterId1: newValue1,<br>
+		&nbsp;&nbsp;&nbsp;&nbsp;parameterId2: newValue2,<br>
+		&nbsp;&nbsp;&nbsp;&nbsp;parameterId3: newValue3<br>
+		]<br>
+		где parameterId - идентификатор добавляемого параметра, newValue - записываемое значение параметра.
+	</li>
+</ul>
+<h4>Запрос:</h4>
+<pre>POST /v1/write-template-management/add-parameters/32 HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer CYndQy1OwPtpal1OhrextgtIM7Bw5q3f
+Content-Length: 2
+Content-Type: application/x-www-form-urlencoded</pre>
+<pre>{
+	"parameters":{
+		"331313":"1.000",
+		"400553":"2,1",
+		"300041":"Дескриптор"
+	}
+}</pre>
+
+<h4>Ответ:</h4>
+<pre>{
+    "code": "success",
+    "description": "Вы успешно добавили новые параметры"
+}</pre>
+<br>
+<h4>Описание возвращаемых полей:</h4>
+<ul>
+    <li>code - код события</li>
+    <li>description - описание события</li>
+</ul>		<h3>Изменение новых значений параметров в шаблоне на запись - POST write-template-management/edit-parameters-values/:id</h3>
+<p>Задаёт новое записываемое значение параметру по идентификатору шаблона. Принимает объект вида ключ=&gt;значение, в котором
+	ключём выступает идентификатор добавляемого параметра, а значением - записываемое значение параметра. В объекте
+	можно передать один или несколько параметров. Идентификатор шаблона передаётся в адресной строке. Объект параметров передаётся в теле запроса.</p>
+<p>Параметры запроса:</p>
+<ul>
+    <li>id - идентификатор шаблона на запись, по которому редактируются новые параметры. Передаётся в адресной строке.</li>
+    <li>parameters - объект вида:<br>
+		{<br>
+		&nbsp;&nbsp;&nbsp;&nbsp;parameterId1: newValue1,<br>
+		&nbsp;&nbsp;&nbsp;&nbsp;parameterId2: newValue2,<br>
+		&nbsp;&nbsp;&nbsp;&nbsp;parameterId3: newValue3<br>
+		}<br>
+		где parameterId - идентификатор добавляемого параметра, newValue - записываемое значение параметра.
+	</li>
+</ul>
+<h4>Запрос:</h4>
+<pre>POST /v1/write-template-management/edit-parameters-values/32 HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer CYndQy1OwPtpal1OhrextgtIM7Bw5q3f
+Content-Length: 2
+Content-Type: application/x-www-form-urlencoded</pre>
+<pre>{
+	"parameters":{
+		"331313":"1.000",
+		"400553":"2,1",
+		"300041":"Дескриптор"
+	}
+}</pre>
+
+<h4>Ответ:</h4>
+<pre>{
+    "code": "success",
+    "description": "Вы успешно обновили значения параметров"
+}</pre>
+<br>
+<h4>Описание возвращаемых полей:</h4>
+<ul>
+    <li>code - код события</li>
+    <li>description - описание события</li>
+</ul>		<h3>Удаление параметров из шаблона на запись - POST write-template-management/delete-parameters/:id</h3>
+<p>Удаляет параметры из шаблона на запись по идентификатору шаблона. Принимает массив идентификаторов параметров. В массиве
+	можно передать один или несколько идентификаторов. Идентификатор шаблона передаётся в адресной строке. Массив передаётся в теле запроса.</p>
+<p>Параметры запроса:</p>
+<ul>
+    <li>id - идентификатор шаблона на запись. Передаётся в адресной строке.</li>
+    <li>parameters - массив вида:<br>
+		[<br>
+		&nbsp;&nbsp;&nbsp;&nbsp;parameterId1,<br>
+		&nbsp;&nbsp;&nbsp;&nbsp;parameterId2,<br>
+		&nbsp;&nbsp;&nbsp;&nbsp;parameterId3<br>
+		]<br>
+		где parameterId - идентификатор удаляемого параметра.
+	</li>
+</ul>
+<h4>Запрос:</h4>
+<pre>POST /v1/write-template-management/delete-parameters/32 HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer CYndQy1OwPtpal1OhrextgtIM7Bw5q3f
+Content-Length: 2
+Content-Type: application/x-www-form-urlencoded</pre>
+<pre>{
+	"parameters":[400555, 445530, 400593, 400549, 400557, 400573]
+}</pre>
+
+<h4>Ответ:</h4>
+<pre>{
+    "code": "success",
+    "description": "Вы успешно удалили параметры"
+}</pre>
+<br>
+<h4>Описание возвращаемых полей:</h4>
+<ul>
+    <li>code - код события</li>
+    <li>description - описание события</li>
+</ul>		<br><br><a class="btn btn-default" href="https://api.owencloud.ru/#contents">К содержанию</a>
+		<h2 id="user-object">Информация о приборах и шаблонах</h2>
+	    <h3>Вывод совмещённого списка приборов и шаблонов — POST user-object/index</h3>
+<p>
+	Список доступных приборов и шаблонов определяется компанией, к которой принадлежит
+	пользователь.
+</p>
+<p>Параметр:
+	</p><ul>
+		<li>filter - необязательный строковый параметр. Ограничивает список приборов и шаблонов теми, в названии которых содержится данная строка.
+			При этом шаблон также попадёт в список, если строка содержится в названии прибора, относящегося к шаблону.</li>
+	</ul>
+<p></p>
+<h4>Запрос:</h4>
+<pre>POST /v1/user-object/index HTTP/1.1
+Accept: */*
+Authorization: Bearer CYndQy1OwPtpal1OhrextgtIM7Bw5q3f
+Content-Length: 13
+Content-Type: application/x-www-form-urlencoded
+</pre>
+<br><pre>{"filter":"Тест"}</pre>
+<h4>Ответ:</h4>
+<pre>[
+	"devices": [
+		{
+			"id": 114,
+			"name": "Тестовое устройство #100",
+			"categories": [
+				4
+			],
+			"is_online": true,
+			"has_alarm": false,
+			"has_unread": false,
+			"status": "offline",
+			"time_zone": "GMT±0:00"
+		},
+		{
+			"id":214,
+			"name":"Тестовое устройство #101",
+			"categories":[
+				1
+			],
+			"is_online":false,
+			"has_alarm":false,
+			"has_unread":false,
+			"status":offline,
+			"time_zone":"GMT±0:00"
+		}
+	],
+	"write_templates": [
+		{
+			"id": 29,
+			"name": "Тестовый шаблон #1",
+			"categories": [
+				1537,
+				1767
+			],
+			"is_empty": false,
+			"is_available": true,
+			"is_in_progress": false,
+			"writable_and_manageable_parameters_amount": 25
+		},
+		{
+			"id": 2,
+			"name": "Шаблон тест2",
+			"categories": [
+				113
+			],
+			"is_empty": false,
+			"is_available": true,
+			"is_in_progress": true,
+			"writable_and_manageable_parameters_amount": 4
+		}
+	],
+]</pre>
+<h4>Ответ, если приборы и шаблоны не найдены:</h4>
+<pre>[
+	"devices": [],
+	"write_templates": [],
+]</pre>
+
+<h4>Описание возвращаемых полей:</h4>
+<p>Общие поля</p>
+<ul>
+	<li>id - идентификатор прибора/шаблона в БД</li>
+	<li>name - пользовательское название прибора/шаблона</li>
+	<li>categories - список Id категорий (папок) в которых находится прибор/шаблон.
+		<br>Список ограничен правами доступа пользователя. Может быть пустым (если прибор/шаблон не разнесен по категориям).
+		<br>Названия категорий возвращаются по запросу category/index.</li>
+
+</ul>
+<p>Поля прибора</p>
+<ul>
+	<li>is_online - текущее состояние (online|offline)</li>
+	<li>has_alarm - есть-ли в данный момент авария на приборе</li>
+	<li>has_unread - есть-ли в данный момент непрочтенные завершенные аварии на приборе</li>
+	<li>status - текущий статус прибора, основанный на трех вышеидущих признаках:
+		<ul>
+			<li>offline - оффлайн и нет незавершенной аварии и непрочтенной аварии;</li>
+			<li>online - онлайн и нет незавершенной аварии и непрочтенной аварии;</li>
+			<li>alarm - есть незавершенная авария (в независимости оффлайн или онлайн;</li>
+			<li>unreadalarm - есть завершенная, но непрочтенная авария (в независимости оффлайн или онлайн);</li>
+		</ul>
+	</li>
+	<li>time_zone - часовая зона прибора</li>
+</ul>
+<p>Поля шаблона</p>
+<ul>
+	<li>is_empty - наличие в шаблоне на запись хотя бы одного параметра</li>
+	<li>is_available - определяет доступность шаблона пользователю. Проверяет права пользователя на связанные приборы.</li>
+	<li>is_in_progress - находится ли шаблон на запись в процессе выполнения</li>
+	<li>writable_and_manageable_parameters_amount - количество управляемых и записываемых параметров шаблона</li>
+</ul>		<br><br><a class="btn btn-default" href="https://api.owencloud.ru/#contents">К содержанию</a>
+		<h2 id="user-management">Управление пользователем</h2>
+		<h3>Изменение пароля пользователя — POST user/edit-password/</h3>
+<p>Изменяет пароль пользователя, если передан корректный текущий пароль.</p>
+<p>Параметры запроса:</p>
+<ul>
+	<li>password_old{*} - текущий пароль пользователя</li>
+	<li>password{*} - новый пароль</li>
+	<li>password_confirm{*} - повторный ввод нового пароля. Должен быть идентичен полю password.</li>
+</ul>
+<small>{*} - поля, помеченные звёздочкой обязательны к заполнению</small>
+<h4>Запрос:</h4>
+<pre>POST user/edit-password/ HTTP/1.1
+Accept: */*
+Authorization: Bearer CYndQy1OwPtpal1OhrextgtIM7Bw5q3f
+Content-Length: 13
+Content-Type: application/x-www-form-urlencoded
+</pre><p>Тело запроса</p>
+<pre>{
+	"password_old":"12345678",
+	"password":"123456",
+	"password_confirm":"123456"
+}
+</pre>
+<h4>Ответ:</h4>
+<pre>{
+    "code": "success",
+    "description": "Пароль пользователя (Иванов Иван) был успешно обновлен."
+}</pre>
+<br>
+<h4>Описание возвращаемых полей:</h4>
+<ul>
+	<li>code - код события.</li>
+	<li>description - описание события.</li>
+</ul>		<br><br><a class="btn btn-default" href="https://api.owencloud.ru/#contents">К содержанию</a>
+        <h2 id="miscellaneous">Разное</h2>
+		<h3>Регистрация мобильного устройства для получения push-уведомлений об авариях - POST push-service/register</h3>
+<h4>Запрос:</h4>
+<pre>POST /v1/push-service/register HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer G78Fv1AfWN5JHirEVfAFnO1gAap3gKBR
+Content-Length: 25
+Content-Type: application/x-www-form-urlencoded</pre>
+<pre>{"device_identifier": "9393943", "os_identifier": "apple", "push_service_token": "tokentokenpush", "push_service_name": "Firebase"}</pre>
+<h4>Параметры запроса</h4>
+<p>Параметры запроса:</p>
+<ul>
+	<li>device_identifier - IMEI или другой уникальный идентификатор мобильного устройства</li>
+	<li>os_identifier* - идентификатор операционной системы</li>
+	<li>push_service_token* - токен сервиса пуш-уведомлений</li>
+	<li>push_service_name* - сервис, предоставляющий отправку и получение пуш-уведомлений. В настоящее время поддерживается толькол Firebase</li>
+</ul>
+<small>{*} - поля, помеченные звёздочкой обязательны к заполнению</small>
+
+<h4>Ответ:</h4>
+<pre>{
+	"error": "OK"
+}
+</pre>
+
+<h4>Описание возвращаемых полей:</h4>
+<p>Возвращается json-объект с одним единственным полем error. Если регистрация или обноление токена прошла успешно, то принимает значение "OK", в противном случае - описание ошибки"</p>
+		<h3>Отвязка мобильного устройства от push-уведомлений об авариях - POST push-service/unregister</h3>
+<h4>Запрос:</h4>
+<pre>POST /v1/push-service/unregister HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer G78Fv1AfWN5JHirEVfAFnO1gAap3gKBR
+Content-Length: 25
+Content-Type: application/x-www-form-urlencoded</pre>
+<pre>{"device_identifier": "9393943", "os_identifier": "apple", "push_service_token": "tokentokenpush", "push_service_name": "Firebase"}</pre>
+<h4>Поля запроса</h4>
+<p>device_identifier - IMEI или другой уникальный идентификатор мобильного устройства</p>
+<p>os_identifier - идентификатор операционной системы</p>
+<p>push_service_token - токен сервиса пуш-уведомлений</p>
+<p>push_service_name - сервис, предоставляющий отправку и получение пуш-уведомлений.</p>
+
+<h4>Ответ:</h4>
+<pre>{
+	"error": "OK"
+}
+</pre>
+
+<h4>Описание возвращаемых полей:</h4>
+<p>Возвращается json-объект с одним единственным полем error. Если отвязка токена прошла успешно, то принимает значение "OK", в противном случае - описание ошибки"</p>
+		
+		<h3>Запрос отправки sms на выбранный номер и получение статуса sms отправки POST sms/status</h3>
+		<p>В запросе должен быть один из двух параметров: phoneId или tag</p>
+		<p>При наличии phoneId будет создана заявка на отправку смс и выдан специальный уникальный tag, использовать который нужно будет при отправке кода проверки из смс. 
+			При наличии tag будет выполнена проверка статуса заявки на отправки смс. 
+			В ответе выдается список полей, характеризующий запрос на отправку смс.</p>
+		<h4>Запрос:</h4>
+		<pre>POST /v1/sms/status?phoneId=15 HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer 3KldmtWndWxykn5HADhDlNxytiEDIppd
+</pre>
+		<pre>[]</pre>
+		<h4>Ответ:</h4>
+		<pre>{"error":"","sms_tag":"936d89f0bfa0b32b303ecf9fa39c7020",
+"was_sent":false,"was_received":false,"was_expired":false}</pre>
+		<br>
+		<pre>POST /v1/sms/status?tag=936d89f0bfa0b32b303ecf9fa39c7020 HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer 3KldmtWndWxykn5HADhDlNxytiEDIppd
+</pre>
+		<pre>[]</pre>
+		<h4>Ответ:</h4>
+		<pre>{"error":"","sms_tag":"936d89f0bfa0b32b303ecf9fa39c7020",
+"was_sent":true,"was_received":true,"was_expired":false}</pre>
+		<br>
+		<h4>Описание возвращаемых полей:</h4>
+		error - либо пустая строка, либо сообщение, что достигнут лимит использования SMS в текущем месяце у компании, либо еще какое-то пояснение о проблемах доставки смс
+		<br>   sms_tag - уникальный тэг смс отправки
+		<br>   was_sent - было ли смс отправлено смс сервисом
+		<br>   was_received - было ли смс получено адресатом
+		<br>   was_expired - истекло ли время жизни смс отправки
+		
+		
+				
+		<h3>Получение списка доверенных телефонов компании юзера POST trusted-phones/index</h3>
+		<p>В ответе выдается сообщение о достижении лимита смс (если лимит достигнут) и список телефонов</p>
+		<h4>Запрос:</h4>
+		<pre>POST /v1/trusted-phones/index HTTP/1.1
+Host: api.owencloud.ru
+Accept: */*
+Authorization: Bearer 3KldmtWndWxykn5HADhDlNxytiEDIppd
+</pre>
+		<pre>[]</pre>
+		<h4>Ответ:</h4>
+		<pre>{"error": "Достигнут лимит SMS",
+"phones": [{"id":12"number":"+222-22-22-2222","name":"Первый телефон","last_used_dt":1502207453},
+{"id":15,"number":"+1(111)111-2231","name":"Чей-то телефон","last_used_dt":null}]}</pre>
+		<br>
+		<h4>Описание возвращаемых полей:</h4>
+		error - либо пустая строка, либо сообщение, что достигнут лимит использования SMS в текущем месяце у компании
+		<br>   phones - список доверенных телефонов:
+		<br>&nbsp;&nbsp;&nbsp;&nbsp;   id - id телефона
+		<br>&nbsp;&nbsp;&nbsp;&nbsp;   number - отформатированный номер телефона
+		<br>&nbsp;&nbsp;&nbsp;&nbsp;   name - описание номера телефона
+		<br>&nbsp;&nbsp;&nbsp;&nbsp;   last_used_dt - timestamp последнего использования (отправки смс) - 
+		относительное значение, важно только для сравнения друг с другом и поиска самого позднего использования.
+		
+		
+		        <br><br><a class="btn btn-default" href="https://api.owencloud.ru/#contents">К содержанию</a>
+	</div>
+</div>
+<style>
+	.deprecated,
+	.deprecated pre {
+		color: dimgrey;
+	}
+	.forbidden,
+	.forbidden pre {
+		color: grey;
+	}
+</style>		</div>
+		<script src="./OwenCloud API_files/jquery.js.Без названия"></script>
+<script src="./OwenCloud API_files/yii.js.Без названия"></script>	
+
+</body></html>
